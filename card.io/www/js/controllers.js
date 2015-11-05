@@ -1,6 +1,6 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers', ['starter.services'])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $rootScope, $ionicHistory, $location, UserService, AuthenticationService) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -9,47 +9,154 @@ angular.module('starter.controllers', [])
   //$scope.$on('$ionicView.enter', function(e) {
   //});
 
-  // Form data for the login modal
-  $scope.loginData = {};
+  $scope.isUserLogged = function(){
+    var user = $rootScope.globals.currentUser;
+    console.log(user);
+    if(user){
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-  // Create the login modal that we will use later
-  $ionicModal.fromTemplateUrl('templates/login.html', {
-    scope: $scope
-  }).then(function(modal) {
-    $scope.modal = modal;
-  });
+  $scope.doLogOut = function() {
+    AuthenticationService.ClearCredentials();
+    $ionicHistory.nextViewOptions({disableBack: true});
+    $location.path('app/login');
+  }
 
-  // Triggered in the login modal to close it
-  $scope.closeLogin = function() {
-    $scope.modal.hide();
+  /*
+  $scope.getName = function () {
+    if(plugins.appPreferences) {
+      plugins.appPreferences.fetch(function(value){
+        $scope.$apply(function(){$scope.name = value;});
+        alert("I got this value: " + $scope.name);
+      }, function(err){
+        console.log(err);
+      }, 'name');
+    } else {
+      return "Manuel";
+    }
   };
-
-  // Open the login modal
-  $scope.login = function() {
-    $scope.modal.show();
+  $scope.setName = function () {
+    if(plugins.appPreferences) {
+      plugins.appPreferences.store(function () {
+        console.log('successfully saved!');
+        alert("I saved: " + $scope.loginData.username);
+        }, 
+        function(){
+          console.log('error setting reference...');
+        }, 
+        'name', 
+        $scope.loginData.username
+      );
+    } else {
+      console.log('nothing...');
+    }
   };
-
-  // Perform the login action when the user submits the login form
-  $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
+  $scope.touchId = function(){
+    $cordovaTouchID.checkSupport().then(function() {
+      console.log('TouchID Available, using....');
+      $cordovaTouchID.authenticate("Login plz").then(function() {
+        alert('authenticated!');
+      }, function () {
+        alert('Something happened....');
+      });
+    }, function (error) {
+      alert(error); // TouchID not supported
+    });
   };
+  */
+
 })
 
 .controller('PlaylistsCtrl', function($scope) {
   $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
+  { title: 'Reggae', id: 1 },
+  { title: 'Chill', id: 2 },
+  { title: 'Dubstep', id: 3 },
+  { title: 'Indie', id: 4 },
+  { title: 'Rap', id: 5 },
+  { title: 'Cowbell', id: 6 }
   ];
+})
+
+.controller('LogInCtrl', function($scope, $ionicModal, $timeout, $location, $ionicHistory, $ionicPopup, UserService, AuthenticationService, FlashService) {
+  $scope.loginData = {};
+  $scope.registerData = {};
+
+  // Perform the login action when the user submits the login form
+  $scope.doLogin = function() {
+    console.log('Doing login', $scope.loginData);
+    $timeout(function() {
+      AuthenticationService.Login($scope.loginData.email, $scope.loginData.password, function (response) {
+        if (response.success) {
+          AuthenticationService.SetCredentials($scope.loginData.email, $scope.loginData.password);
+          $ionicHistory.nextViewOptions({disableBack: true});
+          $location.path('app/home');
+        } else {
+          FlashService.Error(response.message);
+          // An alert dialog
+          $ionicPopup.alert({
+            title: 'Login Failed.',
+            template: 'The email or password may be incorrect.'
+          });
+        }
+      });
+    }, 1000);
+  };
+
+
+  // Perform the register action when the user submits the register form
+  $scope.doRegister = function() {
+    console.log('Doing register', $scope.registerData);
+    $timeout(function() {
+      $scope.registerData.username = $scope.registerData.email;
+      UserService.Create($scope.registerData);
+      $scope.closeRegisterModal();
+    }, 1000);
+  };
+
+  // Create the register modal that we will use later
+  $ionicModal.fromTemplateUrl('templates/register.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
+  $scope.openRegisterModal = function() {
+    $scope.modal.show();
+  };
+  $scope.closeRegisterModal = function() {
+    $scope.modal.hide();
+  };
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
+})
+
+.controller('ProfileCtrl', function($scope, $rootScope, UserService) {
+  $scope.editing = false;
+  UserService.GetByUsername($rootScope.globals.currentUser.username).then(function(user){
+    $scope.user = user;
+  });
+
+  // Perform the login action when the user submits the login form
+  $scope.toggleEdit = function() {
+    $scope.editing = !$scope.editing;
+    if ($scope.editing) {
+      console.log('Edit Profile ...');
+    } else {
+      console.log('Edit Profile Done ...');
+    }
+    
+  };
+
+  // Perform the login action when the user submits the login form
+  $scope.saveProfile = function() {
+    console.log('do nothing...');
+  };
+
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {

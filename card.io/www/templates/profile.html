@@ -1,0 +1,57 @@
+<ion-view view-title="Profile">
+  <ion-nav-buttons side="right">
+    <button class="button button-clear" ng-show="!editing" ng-click="toggleEdit()">Edit</button>
+    <button class="button button-positive" ng-show="editing" ng-click="toggleEdit()"> Save Changes</button>
+  </ion-nav-buttons>
+  <ion-content>
+    <form ng-submit="saveProfile()">
+      <div class="list list-inset">
+        <label class="item item-input">
+          <span class="input-label">First Name</span>
+          <input type="text" placeholder="John" ng-model="user.fname">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Last Name</span>
+          <input type="text" placeholder="Shepard" ng-model="user.lname">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Email</span>
+          <input type="email" placeholder="john.shepard@N7.com" ng-model="user.email">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Password</span>
+          <input type="password" placeholder="Secret" ng-model="user.password">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Birth Date</span>
+          <input type="date" placeholder="April 11, 2154" ng-model="user.birth_date">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Height</span>
+          <input type="number" placeholder="(inches)" ng-model="user.height">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Weight</span>
+          <input type="number" placeholder="(lbs.)" ng-model="user.weight">
+        </label>
+        <div class="item item-divider">
+          Gender
+        </div>
+        <label class="item item-text-wrap item-radio">
+          <input type="radio" name="gender" value="male" ng-model="user.gender">
+          <div class="item-content">
+            Male
+          </div>
+          <i class="radio-icon ion-checkmark"></i>
+        </label>
+        <label class="item item-text-wrap item-radio">
+          <input type="radio" name="gender" value="female" ng-model="user.gender">
+          <div class="item-content">
+            Female
+          </div>
+          <i class="radio-icon ion-checkmark"></i>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-view>
