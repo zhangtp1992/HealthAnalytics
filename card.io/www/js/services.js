@@ -101,6 +101,8 @@ angular.module('starter.services', [])
   service.Login = Login;
   service.SetCredentials = SetCredentials;
   service.ClearCredentials = ClearCredentials;
+  service.IsLoggedIn = IsLoggedIn;
+  service.CurrentUser = CurrentUser;
   return service;
 
   function Login(username, password, callback) {
@@ -110,9 +112,9 @@ angular.module('starter.services', [])
       UserService.GetByUsername(username)
       .then(function (user) {
         if (user !== null && user.password === password) {
-          response = { success: true };
+          response = { success: true, user: user };
         } else {
-          response = { success: false, message: 'Username or password is incorrect' };
+          response = { success: false, message: 'Username or password is incorrect'};
         }
         callback(response);
       });
@@ -125,18 +127,34 @@ angular.module('starter.services', [])
     */
   }
 
-  function SetCredentials(username, password) {
-    console.log('CREDS: ' + username + ':' + password);
+  function SetCredentials(username, password, user) {
     var authdata = Base64.encode(username + ':' + password);
-
     $rootScope.globals = {
       currentUser: {
         username: username,
-        authdata: authdata
+        authdata: authdata,
+        user: user
       }
     };
     $http.defaults.headers.common['Authorization'] = 'Basic ' + authdata; // jshint ignore:line
     $cookieStore.put('globals', $rootScope.globals);
+  }
+
+  function CurrentUser(){
+    if($rootScope.globals.currentUser){
+      return $rootScope.globals.currentUser.user;
+    } else {
+      return {};
+    }
+     
+  }
+
+  function IsLoggedIn(){
+    if($rootScope.globals.currentUser){
+      return true;
+    } else {
+      return false;
+    }
   }
 
   function ClearCredentials() {

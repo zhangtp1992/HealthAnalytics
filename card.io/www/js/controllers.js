@@ -9,6 +9,14 @@ angular.module('starter.controllers', ['starter.services'])
   //$scope.$on('$ionicView.enter', function(e) {
   //});
 
+  $scope.$watch( AuthenticationService.IsLoggedIn, function ( IsLoggedIn ) {
+    $scope.isLoggedIn = IsLoggedIn;
+    $scope.currentUser = AuthenticationService.CurrentUser();
+    if($scope.currentUser && $scope.currentUser.birth_date) {
+      $scope.currentUser.birth_date = new Date($scope.currentUser.birth_date);// theDate.year(), theDate.month(), theDate.date()
+    }
+  });
+
   $scope.isUserLogged = function(){
     var user = $rootScope.globals.currentUser;
     console.log(user);
@@ -24,6 +32,20 @@ angular.module('starter.controllers', ['starter.services'])
     $ionicHistory.nextViewOptions({disableBack: true});
     $location.path('app/login');
   }
+
+  $scope.user = function() { 
+    if($rootScope.globals.currentUser) {
+      console.log("Return: " + JSON.stringify(user));
+      return $rootScope.globals.currentUser.user;
+    } else {
+      return {};
+    }
+  }
+
+  $scope.genderList = [
+    {text: 'Male', value: 'male'},
+    {text: 'Female', value: 'female'}
+  ]
 
   /*
   $scope.getName = function () {
@@ -81,7 +103,7 @@ angular.module('starter.controllers', ['starter.services'])
   ];
 })
 
-.controller('LogInCtrl', function($scope, $ionicModal, $timeout, $location, $ionicHistory, $ionicPopup, UserService, AuthenticationService, FlashService) {
+.controller('LogInCtrl', function($scope, $ionicModal, $rootScope, $timeout, $location, $ionicHistory, $ionicPopup, UserService, AuthenticationService, FlashService) {
   $scope.loginData = {};
   $scope.registerData = {};
 
@@ -91,7 +113,7 @@ angular.module('starter.controllers', ['starter.services'])
     $timeout(function() {
       AuthenticationService.Login($scope.loginData.email, $scope.loginData.password, function (response) {
         if (response.success) {
-          AuthenticationService.SetCredentials($scope.loginData.email, $scope.loginData.password);
+          AuthenticationService.SetCredentials($scope.loginData.email, $scope.loginData.password, response.user);
           $ionicHistory.nextViewOptions({disableBack: true});
           $location.path('app/home');
         } else {
@@ -112,6 +134,7 @@ angular.module('starter.controllers', ['starter.services'])
     console.log('Doing register', $scope.registerData);
     $timeout(function() {
       $scope.registerData.username = $scope.registerData.email;
+      $scope.registerData.birth_date = new Date($scope.registerData.birth_date);
       UserService.Create($scope.registerData);
       $scope.closeRegisterModal();
     }, 1000);
@@ -137,9 +160,6 @@ angular.module('starter.controllers', ['starter.services'])
 
 .controller('ProfileCtrl', function($scope, $rootScope, UserService) {
   $scope.editing = false;
-  UserService.GetByUsername($rootScope.globals.currentUser.username).then(function(user){
-    $scope.user = user;
-  });
 
   // Perform the login action when the user submits the login form
   $scope.toggleEdit = function() {

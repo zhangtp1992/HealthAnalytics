@@ -6,7 +6,7 @@
     </div>
   </ion-header-bar>
   <ion-content>
-    <form ng-submit="doRegister()">
+    <form  ng-submit="doRegister()">
       <div class="list list-inset">
         <label class="item item-input">
           <span class="input-label">First Name</span>
@@ -26,7 +26,7 @@
         </label>
         <label class="item item-input">
           <span class="input-label">Birth Date</span>
-          <input type="date" placeholder="April 11, 2154" ng-model="registerData.birth_date">
+          <input type="date" placeholder="2154-04-11" ng-model="registerData.birth_date">
         </label>
         <label class="item item-input">
           <span class="input-label">Height</span>
@@ -34,11 +34,12 @@
         </label>
         <label class="item item-input">
           <span class="input-label">Weight</span>
-          <input type="number" placeholder="(lbs.)" ng-model="registerData.weight">
+          <input type="number" placeholder="(lbs)" ng-model="registerData.weight">
         </label>
         <div class="item item-divider">
           Gender
         </div>
+        <!--
         <label class="item item-text-wrap item-radio">
           <input type="radio" name="gender" value="male" ng-model="registerData.gender">
           <div class="item-content">
@@ -53,6 +54,8 @@
           </div>
           <i class="radio-icon ion-checkmark"></i>
         </label>
+        -->
+        <ion-radio-fix ng-repeat="item in genderList" ng-value="item.value" ng-model="registerData.gender">{{item.text}}</ion-radio-fix>
         <label class="item">
           <button class="button button-block button-positive" type="submit">Sign Up</button>
         </label>
