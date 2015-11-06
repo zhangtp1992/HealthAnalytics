@@ -1,0 +1,41 @@
+<ion-view view-title="Add Workout">
+  <ion-nav-buttons side="right">
+    <button class="button button-clear" ng-click="submitWorkout()">Save</button>
+  </ion-nav-buttons>
+  <ion-content>
+    <form  ng-submit="submitWorkout()">
+      <div class="list list-inset">
+        <label class="item item-input">
+          <span class="input-label">Name</span>
+          <input type="text" placeholder="Ran today" ng-model="workoutData.name">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Date</span>
+          <input type="date" ng-model="workoutData.date">
+        </label>
+        <label class="item item-input item-select">
+          <div class="input-label">
+            Type
+          </div>
+          <select ng-model="workoutData.type">
+            <option ng-repeat="workoutType in workoutTypes" ng-selected="{{workoutType.value == workoutData.type}}" value="{{workoutType.value}}">{{workoutType.text}}</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="list list-inset">
+        <div class="item item-divider">
+          Basic Information
+        </div>
+        <label class="item item-input">
+          <span class="input-label">Distance (mi)</span>
+          <input type="number" placeholder="(mi)" ng-model="workoutData.distance">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Duration (secs)</span>
+          <input type="number" placeholder="(secs)" ng-model="workoutData.duration">
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-view>

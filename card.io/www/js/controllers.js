@@ -1,6 +1,6 @@
 angular.module('starter.controllers', ['starter.services'])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $rootScope, $ionicHistory, $location, UserService, AuthenticationService) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $rootScope, $ionicHistory, $location, md5, UserService, AuthenticationService) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -8,6 +8,8 @@ angular.module('starter.controllers', ['starter.services'])
   // listen for the $ionicView.enter event:
   //$scope.$on('$ionicView.enter', function(e) {
   //});
+  // Gravatar size
+  $scope.gSize = 200;
 
   $scope.$watch( AuthenticationService.IsLoggedIn, function ( IsLoggedIn ) {
     $scope.isLoggedIn = IsLoggedIn;
@@ -35,11 +37,16 @@ angular.module('starter.controllers', ['starter.services'])
 
   $scope.user = function() { 
     if($rootScope.globals.currentUser) {
-      console.log("Return: " + JSON.stringify(user));
       return $rootScope.globals.currentUser.user;
     } else {
       return {};
     }
+  }
+
+  
+  
+  $scope.gravatarUrl = function() {
+    return 'http://www.gravatar.com/avatar/' + md5.createHash($scope.currentUser.email.toLowerCase()) + '?s=' + $scope.gSize;
   }
 
   $scope.genderList = [
@@ -107,6 +114,10 @@ angular.module('starter.controllers', ['starter.services'])
   $scope.loginData = {};
   $scope.registerData = {};
 
+  $scope.$watch( $scope.registerData.birth_date, function ( birth_date ) {
+    $scope.registerData.birth_date = new Date(birth_date);
+  });
+
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
     console.log('Doing login', $scope.loginData);
@@ -155,6 +166,9 @@ angular.module('starter.controllers', ['starter.services'])
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
   });
+  $scope.$on('modal.hidden', function() {
+    $scope.registerData = {};
+  });
 
 })
 
@@ -177,6 +191,46 @@ angular.module('starter.controllers', ['starter.services'])
     console.log('do nothing...');
   };
 
+})
+
+.controller('SettingsCtrl', function($scope, $stateParams) {
+})
+
+.controller('AddWorkoutCtrl', function($scope, $stateParams) {
+  $scope.workoutTypes = [
+    {text: 'Run', value: 'run'},
+    {text: 'Walk', value: 'Walk'},
+    {text: 'Bike', value: 'bike'},
+  ];
+  var now = moment();
+  var name = 'Run on ' + (now.month()+1) + '/' + now.date() + '/' + now.year();
+  $scope.workoutData = {name: name, type: 'run', date: new Date(now.year(), now.month(), now.date()), distance: 0.0, duration: 0.0};
+})
+
+.controller('AddFoodCtrl', function($scope, $stateParams) {
+  var now = moment();
+  $scope.foodData = {type: 'lunch', food: "coffee", serving: '0.5', date: new Date(now.year(), now.month(), now.date())};
+
+  $scope.foodTypes = [
+    {text: 'Pizza', value: 'pizza', calories: 215},
+    {text: 'Coffee', value: 'coffee', calories: 130},
+    {text: 'Cake', value: 'cake', calories: 600}
+  ];
+
+  $scope.mealTypes = [
+    {text: 'Breakfast', value: 'breakfast'},
+    {text: 'Lunch', value: 'lunch'},
+    {text: 'Dinner', value: 'dinner'},
+    {text: 'Snack', value: 'snack'},
+    {text: 'Other', value: 'other'}
+  ];
+
+  $scope.servingTypes = [
+    {text: 'A Lot', value: '3'},
+    {text: 'Moderate', value: '2'},
+    {text: 'Normal', value: '1'},
+    {text: 'Quick Snack', value: '0.5'}
+  ];
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {

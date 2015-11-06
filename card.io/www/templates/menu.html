@@ -13,10 +13,8 @@
   </ion-side-menu-content>
 
   <ion-side-menu side="left">
-    <ion-header-bar align-title="left" class="bar-dark">
-      <div class="buttons">
-        <a class="button button-clear button-positive icon ion-ios-person" menu-close href="#/app/profile"></a>
-      </div>
+    <ion-header-bar class="bar-dark">
+      <a class="button button-clear button-positive icon ion-ios-person" menu-close href="#/app/profile"></a>
       <h1 class="title">{{currentUser.fname + ' ' + currentUser.lname}}</h1>
     </ion-header-bar>
     <ion-content>
@@ -25,16 +23,48 @@
         <ion-item ng-hide="isUserLogged()" menu-close href="#/app/login">
           Login
         </ion-item>
-        <ion-item menu-close href="#/app/home">
+        <ion-item menu-close href="#/app/home" class="item-icon-left">
+        <i class="icon ion-ios-home-outline"></i>
           Home
         </ion-item>
-        <ion-item menu-close href="#/app/profile">
-          Profile
+        <div class="item item-divider">
+          Workouts
+        </div>
+        <ion-item menu-close href="#/app/home" class="item-icon-left">
+        <i class="icon ion-ios-body"></i>
+          Record a Workout
         </ion-item>
-        <ion-item menu-close ng-click="doLogOut()">
-          Log out
+        <ion-item menu-close href="#/app/add/workout" class="item-icon-left">
+        <i class="icon ion-ios-plus-empty"></i>
+          Add a Workout
+        </ion-item>
+        <ion-item menu-close href="#/app/home" class="item-icon-left">
+        <i class="icon ion-ios-paper-outline"></i>
+          Workout History
+        </ion-item>
+        <div class="item item-divider">
+          Food
+        </div>
+        <ion-item menu-close href="#/app/add/food" class="item-icon-left">
+        <i class="icon ion-fork"></i>
+          Add Food
+        </ion-item>
+        <ion-item menu-close href="#/app/home" class="item-icon-left">
+        <i class="icon ion-ios-paper-outline"></i>
+          Food History
         </ion-item>
       </ion-list>
     </ion-content>
+    <!--
+    <ion-footer-bar align-title="left" class="bar-dark">
+      <div class="buttons"></div>
+      <h1 class="title">Log out</h1>
+    </ion-footer-bar>
+    -->
+    <ion-footer-bar align-title="left" class="bar-dark">
+      <div class="buttons"></div>
+      <a menu-close href="#/app/settings" class="button button button-clear icon ion-ios-gear"> Settings</a>
+    </ion-footer-bar>
+
   </ion-side-menu>
 </ion-side-menus>

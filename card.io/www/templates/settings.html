@@ -1,0 +1,20 @@
+<ion-view view-title="Settings">
+  <ion-content padding="true">
+    <form>
+      <div class="list list-inset">
+        <label class="item item-input">
+          <span class="input-label">Setting 1</span>
+          <input type="text" placeholder="something" ng-readonly="!editing" ng-model="setting1">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Setting 2</span>
+          <input type="text" placeholder="other thing" ng-readonly="!editing" ng-model="setting2">
+        </label>
+      </div>
+    </form>
+
+    <div class="list">
+      <button class="button button-block button-assertive" ng-click="doLogOut()">Logout</button>
+    </div>
+  </ion-content>
+</ion-view>

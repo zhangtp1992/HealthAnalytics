@@ -1,0 +1,45 @@
+<ion-view view-title="Add Food">
+  <ion-nav-buttons side="right">
+    <button class="button button-clear" ng-click="submitFood()">Save</button>
+  </ion-nav-buttons>
+  <ion-content>
+    <form  ng-submit="submitFood()">
+      <div class="list list-inset">
+        <label class="item item-input item-select">
+          <div class="input-label">
+            Meal
+          </div>
+          <select ng-model="foodData.type">
+            <option ng-repeat="mealType in mealTypes" ng-selected="{{mealType.value == foodData.type}}" value="{{mealType.value}}">{{mealType.text}}</option>
+          </select>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Date</span>
+          <input type="date" ng-model="foodData.date">
+        </label>
+      </div>
+
+      <div class="list list-inset">
+        <div class="item item-divider">
+          Basic Information
+        </div>
+        <label class="item item-input item-select">
+          <div class="input-label">
+            Food
+          </div>
+          <select ng-model="foodData.food">
+            <option ng-repeat="foodType in foodTypes" ng-selected="{{foodType.value == foodData.food}}" value="{{foodType.value}}">{{foodType.text}}</option>
+          </select>
+        </label>
+        <label class="item item-input item-select">
+          <div class="input-label">
+            Serving
+          </div>
+          <select ng-model="foodData.serving">
+            <option ng-repeat="servingType in servingTypes" ng-selected="{{servingType.value == foodData.serving}}" value="{{servingType.value}}">{{servingType.text}}</option>
+          </select>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-view>
