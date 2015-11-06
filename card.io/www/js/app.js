@@ -114,32 +114,55 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   })
 
   .state('app.browse', {
-      url: '/browse',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/browse.html'
-        }
-      }
-    })
-    .state('app.playlists', {
-      url: '/playlists',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/playlists.html',
-          controller: 'PlaylistsCtrl'
-        }
-      }
-    })
-
-  .state('app.single', {
-    url: '/playlists/:playlistId',
+    url: '/browse',
     views: {
       'menuContent': {
-        templateUrl: 'templates/playlist.html',
-        controller: 'PlaylistCtrl'
+        templateUrl: 'templates/browse.html'
+      }
+    }
+  })
+
+  .state('app.workouts', {
+    url: '/workouts',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/workouts.html',
+        controller: 'WorkoutsCtrl'
+      }
+    }
+  })
+
+  .state('app.foods', {
+    url: '/foods',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/foods.html',
+        controller: 'FoodsCtrl'
+      }
+    }
+  })
+
+  .state('app.workout', {
+    url: '/workouts/:workoutId',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/workout.html',
+        controller: 'WorkoutsCtrl'
+      }
+    }
+  })
+
+  .state('app.food', {
+    cache: false,
+    url: '/workouts/:foodId',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/food.html',
+        controller: 'FoodsCtrl'
       }
     }
   });
+
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/home');
 });

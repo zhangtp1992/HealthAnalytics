@@ -1,3 +1,4 @@
+var staticMap = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyBCxCvlC1kBSNGd0WEvsN5X0BkqDQTdIdo";
 angular.module('starter.controllers', ['starter.services'])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, $rootScope, $ionicHistory, $location, md5, UserService, AuthenticationService) {
@@ -233,5 +234,64 @@ angular.module('starter.controllers', ['starter.services'])
   ];
 })
 
-.controller('PlaylistCtrl', function($scope, $stateParams) {
+.controller('WorkoutsCtrl', function($scope, $stateParams) {
+  $scope.workoutList = [
+    {id: '1', name: "Nice walk in Johnson Park", type: 'walk', icon:'ion-android-walk', date: new Date("2015", "10", "02"), distance: 1.1, duration: 1260.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'},
+    {id: '2', name: "Nice run in Johnson Park", type: 'run', icon:'ion-ribbon-a', date: new Date("2015", "09", "25"), distance: 1.1, duration: 660.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'},
+    {id: '3', name: "Nice bike in Johnson Park", type: 'bike', icon:'ion-android-bicycle', date: new Date("2015", "09", "05"), distance: 1.1, duration: 420.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'}
+  ];
+
+  $scope.formatDate = function(date) {
+    if(date) {
+      
+      console.log(date);
+      console.log(moment(date).format('LL'));
+      return moment(date).format('LL');
+    }
+  }
+
+  $scope.formatDuration = function(secs){
+    if(secs){
+      var hours = parseInt( secs / 3600 );
+      var minutes = parseInt( secs / 60 );
+      var seconds = secs % 60;
+      var result = (hours < 1 ? "" : hours + " :") + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
+      return result;
+    }
+  }
+
+  $scope.formatPace = function(distance,secs){
+    if(distance  && secs && distance > 0 && secs > 0) {
+      var pace = parseFloat(secs/distance);
+      var minutes = parseInt( pace / 60 );
+      var seconds = parseInt(pace % 60);
+      var result = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds) + " min/mi.";
+      return result;
+    }
+  }
+
+})
+
+.controller('FoodsCtrl', function($scope, $stateParams) {
+  $scope.foodList = [
+    {id: '1', type: 'lunch', food: 'pizza', icon:'ion-pizza', calories: 215, serving_label: 'Quick Snack', serving: '0.5', date: new Date("2015", "10", "02")},
+    {id: '2', type: 'breakfast', food: 'coffee', icon:'ion-coffee', calories: 130, serving_label: 'A Lot', serving: '3', date: new Date("2015", "10", "02")},
+    {id: '3', type: 'other', food: 'cake', icon:'ion-fork', calories: 600, serving_label: 'Normal', serving: '1', date: new Date("2015", "10", "02")}
+  ];
+
+  $scope.formatDate = function(date) {
+    if(date) {
+      console.log(date);
+      return moment(date).format('ll');
+    }
+  }
+
+  $scope.formatCalories = function(calories,servings) {
+    if(calories && servings && calories > 0 && servings >0) {
+      var calculatedCalories = parseFloat(servings) * parseFloat(calories);
+      var value = calculatedCalories.toFixed(2) + " calories";
+      return value;
+    }
+  }
+
 });

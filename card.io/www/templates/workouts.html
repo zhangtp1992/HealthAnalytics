@@ -1,0 +1,22 @@
+<ion-view view-title="Workout History">
+  <ion-content>
+    <ion-list type="card" ng-repeat="item in workoutList">
+      <ion-item class="item-icon-left">
+        <i class="icon {{item.icon}}"></i>
+        <h2 class="first-letter">{{item.type}}</h2>
+        <p>{{formatDate(item.date)}}</p>
+      </ion-item>
+      <a class="item item-body" href="#/app/workouts/{{item.id}}">
+        <img class="full-image" src="{{item.gmap}}">
+        <p>
+          {{item.name}}
+        </p>
+        <p>
+          <b>Distance: </b>{{item.distance}} mi.<br/>
+          <b>Duration: </b>{{formatDuration(item.duration)}}<br/>
+          <b>Pace: </b>{{formatPace(item.distance,item.duration)}}
+        </p>
+      </a>
+    </ion-list>
+  </ion-content>
+</ion-view>
