@@ -32,7 +32,7 @@ files_SAS = [
   "HDL_E.XPT",
   "HDL_F.XPT",
   "HDL_G.XPT",
-  "L13AM.XPT",
+  "LAB13AM.XPT",
   "L13AM_B.XPT",
   "L13AM_C.XPT",
   "TRIGLY_D.XPT",

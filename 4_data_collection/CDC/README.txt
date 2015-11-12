@@ -60,7 +60,7 @@ Notes:
   - HDL_E.XPT:    2007-2008 Cholesterol - HDL
   - HDL_F.XPT:    2009-2010 Cholesterol - HDL
   - HDL_G.XPT:    2011-2012 Cholesterol - HDL
-  - L13AM.XPT:    1999-2000 Cholesterol - LDL & Triglycerides
+  - LAB13AM.XPT:  1999-2000 Cholesterol - LDL & Triglycerides
   - L13AM_B.XPT:  2001-2002 Cholesterol - LDL & Triglycerides
   - L13AM_C.XPT:  2003-2004 Cholesterol - LDL & Triglycerides
   - TRIGLY_D.XPT: 2005-2006 Cholesterol - LDL & Triglycerides
