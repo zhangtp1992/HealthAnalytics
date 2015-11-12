@@ -29,7 +29,6 @@ Notes:
 - Data files used are from: 
   - http://wwwn.cdc.gov/Nchs/Nhanes/Search/DataPage.aspx?Component=Examination
   - http://wwwn.cdc.gov/Nchs/Nhanes/Search/DataPage.aspx?Component=Laboratory
-  - 
 - Data files included:
   - CVX_C.XPT:    2003-2004 Cardiovascular Fitness
   - BMX.XPT:      1999-2000 Body Measures

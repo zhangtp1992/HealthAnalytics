@@ -1,3 +1,6 @@
+Census 2010 Data Collection Information
+
+== General Information ==
 API url: http://api.census.gov/data/2010/sf1?for=state:*&get=<VARIABLES>&key=<KEY>
 Key: 2b08a105d5fe3f30c6827a837d996886db194f72
 Variables: http://api.census.gov/data/2010/sf1/variables.html
@@ -6,8 +9,7 @@ Examples: http://api.census.gov/data/2010/sf1/examples.html
 Developer information: http://www.census.gov/data/developers/data-sets/decennial-census-data.html
 Data sets available: http://api.census.gov/data.html
 
-Data Variables Used:
-
+== Data Variables Used ==
 Total Population: total_population_per_state.json
 P0010001
 
@@ -38,6 +40,8 @@ P012H001,P012H002,P012H003,P012H004,P012H005,P012H006,P012H007,P012H008,P012H009
 SEX BY AGE (WHITE ALONE, NOT HISPANIC OR LATINO) [49]: white_alone_not_hispanic_or_latino.json
 P012I001,P012I002,P012I003,P012I004,P012I005,P012I006,P012I007,P012I008,P012I009,P012I010,P012I011,P012I012,P012I013,P012I014,P012I015,P012I016,P012I017,P012I018,P012I019,P012I020,P012I021,P012I022,P012I023,P012I024,P012I025,P012I026,P012I027,P012I028,P012I029,P012I030,P012I031,P012I032,P012I033,P012I034,P012I035,P012I036,P012I037,P012I038,P012I039,P012I040,P012I041,P012I042,P012I043,P012I044,P012I045,P012I046,P012I047,P012I048,P012I049
 
+
+== Legend ==
 Race Information:
 XX12AXXX WHITE ALONE
 XX12BXXX BLACK OR AFRICAN AMERICAN ALONE
