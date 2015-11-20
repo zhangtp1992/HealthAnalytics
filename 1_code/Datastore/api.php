@@ -13,10 +13,12 @@ class api
 	public $furl_function='';
 	public $furl_id='';
 	public $datastore='';
+	public $retval=['results'=>'','errmsg'=>''];
 
 	public function __construct(){
 		$data=file_get_contents('php://input');
-		switch($_SERVER['HTTP_CONTENT_TYPE']){
+		$ct=explode(';',$_SERVER['HTTP_CONTENT_TYPE']);;
+		switch(trim($ct[0])){
 			case 'application/json':
 				$requestVars=json_decode($data,TRUE);
 			break;
@@ -53,14 +55,17 @@ class api
 try{
 	$api=new api();
 	$api->processRequest();
-	echo 'good';
+	$api->retval['results']=1;
+	echo str_replace('":null','":""',json_encode($api->retval));
 }
 catch(apiException $e){
-	print_r($e);
+	$api->retval['errmsg']=$e->getMessage();
+	echo str_replace('":null','":""',json_encode($api->retval));
 	//header("HTTP/1.1 404 Not Found");
 	//echo $e->getMessage();
 	//exit;
 }
 catch(datastoreException $e){
-	print_r($e);
+	$api->retval['errmsg']=$e->getMessage();
+	echo str_replace('":null','":""',json_encode($api->retval));
 } ?>
