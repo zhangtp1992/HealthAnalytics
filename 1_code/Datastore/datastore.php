@@ -1,4 +1,4 @@
-<?php
+<?php include('SE1Exception.php');
 
 class driver extends PDO
 {
@@ -15,17 +15,16 @@ class driver extends PDO
 	}
 }
 
-class DatastoreException extends Exception
+class DatastoreException extends SE1Exception
 {
-    public function __construct($message, $code = 0, Exception $previous = null) {
-        parent::__construct($message, $code, $previous);
+    public function __construct($message, $code) {
+        parent::__construct($message, $code);
     }
 }
 
 class datastore
 {
 	public $db;
-	public $error;
 	public $authenticatedUser=[];
 
 	public function __construct(){
@@ -33,7 +32,7 @@ class datastore
 			$this->db=new driver();
 		}
 		catch(Exception $e){
-			throw new DatastoreException('Unable to connect to database');
+			throw new DatastoreException('Unable to connect to database',2);
 		}
 	}
 
@@ -50,9 +49,9 @@ class datastore
 				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
 				$this->authenticatedUser=$rs;
 			}
-			else{throw new DatastoreException('User is not authenticated');}
+			else{throw new DatastoreException('User is not authenticated',3);}
 		}
-		catch(PDOException $e){throw new DatastoreException('ERROR, unable to authenication user');}
+		catch(PDOException $e){throw new DatastoreException('ERROR, unable to authenication user',2);}
 
 	}
 
@@ -65,12 +64,12 @@ class datastore
 		}
 		catch(PDOException $e){
 			$this->__logError($e->getMessage(),__FUNCTION__);
-			if($e->errorInfo[1]==1062){$txt='This email address already exists';}
-			else{$txt='Unable to create user';}
-			throw new DatastoreException($txt);
+			if($e->errorInfo[1]==1062){$txt='This email address already exists';$code=4;}
+			else{$txt='Unable to create user';$code=2;}
+			throw new DatastoreException($txt,$code);
 		}
 		catch(DatastoreException $e){
-			throw new DatastoreException($e->getMessage());
+			throw new DatastoreException($e->getMessage(),$e->getCode());
 		}
 	}
 
@@ -79,12 +78,12 @@ class datastore
 		try{
 			$pstmt->execute([$email]);
 			if($pstmt->rowCount()<1){
-				throw new DatastoreException('E-Mail Address not found');
+				throw new DatastoreException('E-Mail Address not found',1);
 			}
 			else{
 				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
 				if(!password_verify($password, $rs['passwd'])){
-					throw new DatastoreException('ERROR, Invalid password');
+					throw new DatastoreException('ERROR, Invalid password',3);
 				}
 			}
 			$pstmt=$this->db->prepare('INSERT INTO session (sessid,person) VALUES (?,?)');
@@ -92,7 +91,7 @@ class datastore
 		}
 		catch(PDOException $e){
 			$this->__logError($e->getMessage(),__FUNCTION__);
-			throw new DatastoreException('Unable to login');
+			throw new DatastoreException('Unable to login',2);
 		}
 	}
 }
