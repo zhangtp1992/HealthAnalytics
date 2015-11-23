@@ -88,7 +88,7 @@ class datastore
 			}
 			$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
 			if(!password_verify($password, $rs['passwd'])){
-				throw new DatastoreException('ERROR, Invalid password',3);
+				throw new DatastoreException('ERROR, Incorrect password',3);
 			}
 			$pstmt=$this->db->prepare('INSERT INTO session (authtoken,person) VALUES (?,?)');
 			$pstmt->execute([$authtoken,$rs['pkey']]);
