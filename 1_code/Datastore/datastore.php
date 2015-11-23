@@ -2,8 +2,6 @@
 
 class driver extends PDO
 {
-	public $error;
-
 	function __construct(){
 		try{
 			parent::__construct('mysql:host=localhost;dbname=se1;charset=UTF8','se1','dfj59jnah19jmdig');
@@ -55,12 +53,16 @@ class datastore
 
 	}
 
-	public function addUser($token,$fname,$lname,$email,$passwd){
+	public function addUser($fname,$lname,$email,$passwd){
+		if(empty($fname)){throw new DatastoreException('You must provide the First Name',5);}
+		if(empty($lname)){throw new DatastoreException('You must provide the Last Name',5);}
+		if(empty($email)){throw new DatastoreException('You must provide the E-Mail Address',5);}
+		if(empty($passwd)){throw new DatastoreException('You must provide the Password',5);}
 		try{
-			$this->__authenticateUser($token);
 			$pstmt=$this->db->prepare('INSERT INTO people SET fname=?, lname=?, email=?, passwd=?');
 			$passwd=password_hash($passwd, PASSWORD_BCRYPT, ['cost'=>11]);
 			$pstmt->execute([$fname,$lname,$email,$passwd]);
+			return('{"results":"User successfully created"}');
 		}
 		catch(PDOException $e){
 			$this->__logError($e->getMessage(),__FUNCTION__);
@@ -68,26 +70,29 @@ class datastore
 			else{$txt='Unable to create user';$code=2;}
 			throw new DatastoreException($txt,$code);
 		}
-		catch(DatastoreException $e){
-			throw new DatastoreException($e->getMessage(),$e->getCode());
-		}
 	}
 
-	public function loginUser($email,$password,$token){
+	public function loginUser($email,$password){
+		$string = bin2hex(openssl_random_pseudo_bytes(10));
+        $length=32;
+        $chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        $authtoken='';
+        while(strlen($authtoken)<$length){
+            $authtoken.=$chars[mt_rand(0,strlen($chars))];
+        }
 		$pstmt=$this->db->prepare('SELECT pkey,passwd FROM people WHERE email=? LIMIT 1');
 		try{
 			$pstmt->execute([$email]);
 			if($pstmt->rowCount()<1){
 				throw new DatastoreException('E-Mail Address not found',1);
 			}
-			else{
-				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
-				if(!password_verify($password, $rs['passwd'])){
-					throw new DatastoreException('ERROR, Invalid password',3);
-				}
+			$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
+			if(!password_verify($password, $rs['passwd'])){
+				throw new DatastoreException('ERROR, Invalid password',3);
 			}
-			$pstmt=$this->db->prepare('INSERT INTO session (sessid,person) VALUES (?,?)');
-			$pstmt->execute([$token,$rs['pkey']]);
+			$pstmt=$this->db->prepare('INSERT INTO session (authtoken,person) VALUES (?,?)');
+			$pstmt->execute([$authtoken,$rs['pkey']]);
+			return('{"authtoken":"'.$authtoken.'"}');
 		}
 		catch(PDOException $e){
 			$this->__logError($e->getMessage(),__FUNCTION__);

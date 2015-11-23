@@ -8,16 +8,19 @@ class SE1Exception extends Exception
     public function getHttpCode(){
     	switch($this->getCode()){
     		case 1:
-    			return '404 Not Found';
+    			return '404';
     		break;
     		case 2:
-    			return '500 Internal Service Error';
+    			return '500';
     		break;
     		case 3:
-    			return '401 Unauthorized';
+    			return '401';
     		break;
     		case 4:
-    			return '409 Conflict';
+    			return '409';
+    		break;
+    		case 5:
+    			return '400';
     		break;
     	}
     }
