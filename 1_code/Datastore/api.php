@@ -63,7 +63,7 @@ class api
 				$retval=$this->datastore->loginUser($this->furl_id,$this->requestVars['password']);
 			break;
 			case 'addUser':
-				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->requestVars['email'],$this->requestVars['password']);
+				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password']);
 			break;
 			default:
 				throw new apiException('function not found',1);
