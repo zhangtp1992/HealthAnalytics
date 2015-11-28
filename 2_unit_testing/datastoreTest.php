@@ -6,6 +6,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 {
 	protected static $ds;
 	protected static $email='test@testemail.com';
+	protected static $authtoken;
 
 	public static function dataProvider(){
 		return [[[
@@ -22,6 +23,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 
 	public static function tearDownAfterClass(){
 		self::$ds->db->query('DELETE FROM people WHERE email="'.self::$email.'"');
+		self::$ds->db->query('DELETE FROM session WHERE authtoken="'.self::$authtoken.'"');
 		self::$ds=NULL;
 	}
 
@@ -68,7 +70,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException DatastoreException
-	 * @expectedExceptionMessage ERROR, Incorrect password
+	 * @expectedExceptionMessage ERROR, Invalid password
      * @param array $testData
 	 * @dataProvider dataProvider
      */
@@ -92,6 +94,25 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
      */
     public function test_loginUserCorrectPassword(array $testData){
     	$x=self::$ds->loginUser($testData['email'],$testData['password']);
+    	$token=json_decode($x,TRUE);
+    	self::$authtoken=$token['authtoken'];
     	$this->assertRegExp('/{"authtoken":"/', $x);
+	}
+
+    /**
+     * @param array $testData
+	 * @dataProvider dataProvider
+     */
+	public function test_successfulGetUser(array $testData){
+		$x=self::$ds->getUser($testData['email'],self::$authtoken);
+		$this->assertRegExp('/{"fname":"/', $x);
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You cannot retreive this user
+     */
+    public function test_getUserCannotRetreiveUserException(){
+    	self::$ds->getUser('nobody@thisaddress.com',self::$authtoken);
 	}
 }
