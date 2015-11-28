@@ -7,6 +7,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	protected static $ds;
 	protected static $email='test@testemail.com';
 	protected static $authtoken;
+	protected static $workout_id;
 
 	public static function dataProvider(){
 		return [[[
@@ -24,6 +25,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	public static function tearDownAfterClass(){
 		self::$ds->db->query('DELETE FROM people WHERE email="'.self::$email.'"');
 		self::$ds->db->query('DELETE FROM session WHERE authtoken="'.self::$authtoken.'"');
+		self::$ds->db->query('DELETE FROM workout WHERE workout_id="'.self::$workout_id.'"');
 		self::$ds=NULL;
 	}
 
@@ -115,4 +117,68 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
     public function test_getUserCannotRetreiveUserException(){
     	self::$ds->getUser('nobody@thisaddress.com',self::$authtoken);
 	}
+
+	public function test_addWorkout(){
+		$x=self::$ds->addWorkout(self::$authtoken,"run",2.36,65,456);
+		$newWorkout=json_decode($x,TRUE);
+		self::$workout_id=$newWorkout['workout_id'];
+		$this->assertRegExp('/{"workout_id":"/', $x);
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Workout Type
+     */
+    public function test_addWorkoutMissingWorkoutTypeException(){
+    	self::$ds->addWorkout(self::$authtoken,"",2.36,65,456);
+    }
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Workout Distance
+     */
+    public function test_addWorkoutMissingWorkoutDistanceException(){
+    	self::$ds->addWorkout(self::$authtoken,"run","",65,456);
+    }
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Workout Time
+     */
+    public function test_addWorkoutMissingWorkoutTimeException(){
+    	self::$ds->addWorkout(self::$authtoken,"run",2.36,"",456);
+    }
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Workout Calories
+     */
+    public function test_addWorkoutMissingWorkoutCaloriesException(){
+    	self::$ds->addWorkout(self::$authtoken,"run",2.36,65,"");
+    }
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage Invalid Workout Distance
+     */
+    public function test_addWorkoutInvalidWorkoutDistanceException(){
+    	self::$ds->addWorkout(self::$authtoken,"run","xyz",65,456);
+    }
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage Invalid Workout Time
+     */
+    public function test_addWorkoutInvalidWorkoutTimeException(){
+    	self::$ds->addWorkout(self::$authtoken,"run",2.36,"65z",456);
+    }
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage Invalid Workout Calories
+     */
+    public function test_addWorkoutInvalidWorkoutCaloriesException(){
+    	self::$ds->addWorkout(self::$authtoken,"run",2.36,65,"456-");
+    }
+
 }
