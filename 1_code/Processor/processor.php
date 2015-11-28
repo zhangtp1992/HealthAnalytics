@@ -13,7 +13,7 @@ class apiException extends SE1Exception
 * The login URL is http://www.rugatech.com/se1/api/loginUser/ntaylor@aps.rutgers.edu?password=123456
 * The function in this example is "loginUser".  This is saved to the variable api::furl_function (furl stands for 'Friendly URL' in caes you were wondering).
 * The ID in this example is "ntaylor@aps.rutgers.edu". This is saved to the variable api::furl_id.
-* All $_POST and $_GET variables (with the exception of the function and the id are saved into the variable array api::requestVars.  Therefore, is does not matter if variables are passed via a POST or GET request. (Not 100% RESTFul, but easier to code).
+* All $_POST and $_GET variables (with the exception of the function and the id) are saved into the variable array api::requestVars.  Therefore, is does not matter if variables are passed via a POST or GET request. (Not 100% RESTFul, but easier to code).
 */
 
 class api
@@ -43,7 +43,7 @@ class api
 		}
 		$this->requestVars=$requestVars;
 
-		#GET variables are loaded here (with the exception of `furl_function` and `furl_id`
+		#GET variables are loaded here (with the exception of `furl_function` and `furl_id`)
 		if(!empty($_GET)){
 			foreach($_GET as $key=>$val){
 				switch($key){
@@ -68,17 +68,18 @@ class api
 	}
 
 	#Call the appropriate datastore method based upon the `furl_function`
+	#For the purposes of the project, `addUser` is completely open.  Anybody can create an account.
+	#`get_user` will return an error message if you try to fetch a user other then yourself
+
 	public function processRequest(){
 		$retval='';
 		switch($this->furl_function){
 			case 'loginUser':
 				$retval=$this->datastore->loginUser($this->furl_id,$this->requestVars['password']);
 			break;
-			#for the purposes of the project, `addUser` is completely open.  Anybody can create an account.
 			case 'addUser':
 				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password']);
 			break;
-			#`get_user` will return an error message if you try to fetch a user other then yourself
 			case 'getUser':
 				$retval=$this->datastore->getUser($this->furl_id,$this->requestVars['authtoken']);
 			break;
