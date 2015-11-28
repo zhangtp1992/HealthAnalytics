@@ -39,18 +39,17 @@ class datastore
 		$pstmt->execute([$error,$func]);
 	}
 
-	private function __authenticateUser($token){
+	private function __authenticateUser($authtoken){
 		try{
-			$pstmt=$this->db->prepare('SELECT person FROM session WHERE sessid=?');
-			$pstmt->execute([$token]);
-			if($pstmt->rowCount()==1){
+			$pstmt=$this->db->prepare('SELECT people.pkey,people.fname,people.lname,people.email FROM session INNER JOIN people ON people.pkey=session.person WHERE authtoken=?');
+			$pstmt->execute([$authtoken]);
+			if($pstmt->rowCount()>0){
 				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
 				$this->authenticatedUser=$rs;
 			}
 			else{throw new DatastoreException('User is not authenticated',3);}
 		}
 		catch(PDOException $e){throw new DatastoreException('ERROR, unable to authenication user',2);}
-
 	}
 
 	public function addUser($fname,$lname,$email,$passwd){
@@ -73,7 +72,6 @@ class datastore
 	}
 
 	public function loginUser($email,$password){
-		$string = bin2hex(openssl_random_pseudo_bytes(10));
         $length=32;
         $chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
         $authtoken='';
@@ -88,7 +86,7 @@ class datastore
 			}
 			$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
 			if(!password_verify($password, $rs['passwd'])){
-				throw new DatastoreException('ERROR, Incorrect password',3);
+				throw new DatastoreException('ERROR, Invalid password',3);
 			}
 			$pstmt=$this->db->prepare('INSERT INTO session (authtoken,person) VALUES (?,?)');
 			$pstmt->execute([$authtoken,$rs['pkey']]);
@@ -99,4 +97,62 @@ class datastore
 			throw new DatastoreException('Unable to login',2);
 		}
 	}
+
+	public function getUser($email,$authtoken){
+		$this->__authenticateUser($authtoken);
+		try{
+			$pstmt=$this->db->prepare('SELECT people.fname,people.lname,people.email FROM people WHERE email=?');
+			$pstmt->execute([$email]);
+			$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
+			if($rs['email']!=$this->authenticatedUser['email']){throw new DatastoreException('You cannot retrieve this user',2);}
+			return json_encode($rs);
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to retrieve user',1);}
+	}
+
+	function addWorkout($authtoken,$workout_type,$distance,$workout_time,$calories){
+		$this->__authenticateUser($authtoken);
+		if(empty($workout_type)){throw new DatastoreException('You must provide the Workout Type',5);}
+		if(empty($distance)){throw new DatastoreException('You must provide the Workout Distance',5);}
+		if(empty($workout_time)){throw new DatastoreException('You must provide the Workout Time',5);}
+		if(empty($calories)){throw new DatastoreException('You must provide the Workout Calories',5);}
+		if(!is_numeric($distance)){throw new DatastoreException('Invalid Workout Distance',5);}
+		if(!is_numeric($workout_time)){throw new DatastoreException('Invalid Workout Time',5);}
+		if(!is_numeric($calories)){throw new DatastoreException('Invalid Workout Calories',5);}
+		try{
+			$pstmt=$this->db->prepare('INSERT INTO workout (workout_type,distance,workout_time,calories,person) VALUES (?,?,?,?,?)');
+			$pstmt->execute([$workout_type,$distance,$workout_time,$calories,$this->authenticatedUser['pkey']]);
+			return(json_encode(['workout_id'=>$this->db->lastInsertId()]));
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to save workout',1);}
+	}
+
+	function getAllWorkout($authtoken){
+		$this->__authenticateUser($authtoken);
+		try{
+			$workout=[];
+			$stmt=$this->db->query('SELECT workout.workout_id,workout_type,distance,workout_time,calories,ts,email FROM workout INNER JOIN people ON people.pkey=workout.`person`');
+			if($stmt->rowCount()>0){
+				while($rs=$stmt->fetch(PDO::FETCH_ASSOC)){
+					$workout[]=$rs;
+				}
+			}
+			return(json_encode($workout));
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch all workouts',1);}
+	}
+
+	function getWorkout($authtoken,$workout_id){
+		$this->__authenticateUser($authtoken);
+		try{
+			$pstmt=$this->db->prepare('SELECT workout.workout_id,workout_type,distance,workout_time,calories,ts,email FROM workout INNER JOIN people ON people.pkey=workout.`person` WHERE workout.workout_id=?');
+			$pstmt->execute([$workout_id]);
+			if($pstmt->rowCount()>0){
+				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
+				return(json_encode($rs));
+			}
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch workout',1);}
+	}
+
 }

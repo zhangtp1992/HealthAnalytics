@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style type="text/css">
+			table td{padding:6px;border:1px #000 solid}
+			table{border-collapse:collapse;margin-bottom:20px}
+			.functionName{font-weight:bold;background-color:lightblue}
+			.b{font-weight:bold}
+		</style>
+	</head>
+	<table>
+		<tr><td colspan="2" class="functionName">loginUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/loginUser/:email?password=:password</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>password=[string]</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: {"authtoken":"aquidyf...."}</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 401: ERROR, Invalid password<br>
+				Code 404: E-Mail Address not found<br>
+				Code 505: Unable to login
+			</td>
+		</tr>
+	</table>
+	<table>
+		<tr><td colspan="2" class="functionName">addUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/addUser/:email?password=:password&fname=:fname&?lname=:lname</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				password=[string]<br>
+				fname=[string]<br>
+				lname=[string]
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: {"results":"User successfully created"}</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 400: You must provide the First Name<br>
+				Code 400: You must provide the Last Name<br>
+				Code 400: You must provide the E-Mail Address<br>
+				Code 400: You must provide the Password<br>
+				Code 409: This email address already exists<br>
+				Code 505: Unable to create user<br>
+			</td>
+		</tr>
+	</table>
+	<table>
+		<tr><td colspan="2" class="functionName">getUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getUser/:email?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				authtoken=[string]
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: {"fname":"XXXX","lname":"YYYY","email":"ZZZZ"}</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 500: You cannot retrieve this user<br>
+				Code 505: Unable to retrieve user
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>At this point in time you can only retrieve yourself</tr>
+	</table>
+</html>
