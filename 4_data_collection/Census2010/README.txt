@@ -1,5 +1,16 @@
 Census 2010 Data Collection Information
 
+
+To create a CSV file with all the Census data seen below, you need to run:
+python flatten_data.py
+
+This script will create a file called "census.csv" in the folder "outputs".
+This file will have all of the cesus data used for our scripts to generate testing samples.
+
+The script creates a csv file with the following columns:
+state, state population, ethnicity, gender, age group, group population
+
+
 == General Information ==
 API url: http://api.census.gov/data/2010/sf1?for=state:*&get=<VARIABLES>&key=<KEY>
 Key: 2b08a105d5fe3f30c6827a837d996886db194f72
@@ -81,29 +92,29 @@ XXXXX023 Male 75 to 79 years
 XXXXX024 Male 80 to 84 years
 XXXXX025 Male 85 years and over
 XXXXX026 Total Female
-XXXXX027 Male under 5 
-XXXXX028 Male 5 to 9 years
-XXXXX029 Male 10 to 14 years
-XXXXX030 Male 15 to 17 years
-XXXXX031 Male 18 to 19 years
-XXXXX032 Male 20 years
-XXXXX033 Male 21 years
-XXXXX034 Male 22 to 24 years
-XXXXX035 Male 25 to 29 years
-XXXXX036 Male 30 to 34 years
-XXXXX037 Male 35 to 39 years
-XXXXX038 Male 40 to 44 years
-XXXXX039 Male 45 to 49 years
-XXXXX040 Male 50 to 54 years
-XXXXX041 Male 55 to 59 years
-XXXXX042 Male 60 to 61 years
-XXXXX043 Male 62 to 64 years
-XXXXX044 Male 65 to 66 years
-XXXXX045 Male 67 to 69 years
-XXXXX046 Male 70 to 74 years
-XXXXX047 Male 75 to 79 years
-XXXXX048 Male 80 to 84 years
-XXXXX049 Male 85 years and over
+XXXXX027 Female under 5 
+XXXXX028 Female 5 to 9 years
+XXXXX029 Female 10 to 14 years
+XXXXX030 Female 15 to 17 years
+XXXXX031 Female 18 to 19 years
+XXXXX032 Female 20 years
+XXXXX033 Female 21 years
+XXXXX034 Female 22 to 24 years
+XXXXX035 Female 25 to 29 years
+XXXXX036 Female 30 to 34 years
+XXXXX037 Female 35 to 39 years
+XXXXX038 Female 40 to 44 years
+XXXXX039 Female 45 to 49 years
+XXXXX040 Female 50 to 54 years
+XXXXX041 Female 55 to 59 years
+XXXXX042 Female 60 to 61 years
+XXXXX043 Female 62 to 64 years
+XXXXX044 Female 65 to 66 years
+XXXXX045 Female 67 to 69 years
+XXXXX046 Female 70 to 74 years
+XXXXX047 Female 75 to 79 years
+XXXXX048 Female 80 to 84 years
+XXXXX049 Female 85 years and over
 
 
 State Information:
@@ -115,14 +126,21 @@ State Information:
 08 Colorado
 09 Connecticut
 10 Delaware
-11 District of Columbia 12 Florida
+11 District of Columbia 
+12 Florida
 13 Georgia
 15 Hawaii
 16 Idaho
-17 Illinois 18 Indiana 19 Iowa
-20 Kansas 21 Kentucky 22 Louisiana 23 Maine
+17 Illinois 
+18 Indiana 
+19 Iowa
+20 Kansas 
+21 Kentucky 
+22 Louisiana 
+23 Maine
 24 Maryland
-25 Massachusetts 26 Michigan
+25 Massachusetts 
+26 Michigan
 27 Minnesota
 28 Mississippi
 29 Missouri
@@ -140,10 +158,15 @@ State Information:
 41 Oregon
 42 Pennsylvania
 44 Rhode Island
-45 South Carolina 46 South Dakota 47 Tennessee
+45 South Carolina 
+46 South Dakota 
+47 Tennessee
 48 Texas
 49 Utah
 50 Vermont
 51 Virginia
-53 Washington 54 West Virginia 55 Wisconsin 56 Wyoming
+53 Washington 
+54 West Virginia 
+55 Wisconsin 
+56 Wyoming
 72 Puerto Rico
