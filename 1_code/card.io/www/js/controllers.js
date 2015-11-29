@@ -37,22 +37,53 @@ angular.module('starter.controllers', ['starter.services'])
   }
 
   $scope.user = function() { 
-    if($rootScope.globals.currentUser) {
+    if($scope.isUserLogged && AuthenticationService.CurrentUser()) {
       return $rootScope.globals.currentUser.user;
+    } else if ($scope.isUserLogged) {
+      // get user and add it to the scope
+      //AuthenticationService.setCurrentUser();
+      // then return it
+      return {};
     } else {
       return {};
     }
   }
-
-  
   
   $scope.gravatarUrl = function() {
     return 'http://www.gravatar.com/avatar/' + md5.createHash($scope.currentUser.email.toLowerCase()) + '?s=' + $scope.gSize;
   }
 
   $scope.genderList = [
-    {text: 'Male', value: 'male'},
-    {text: 'Female', value: 'female'}
+    {text: 'Male', value: 'm'},
+    {text: 'Female', value: 'f'}
+  ]
+
+  $scope.stateList = [
+    { value: 'AL', text: 'Alabama' }, { value: 'AK', text: 'Alaska' },
+    { value: 'AZ', text: 'Arizona' }, { value: 'AR', text: 'Arkansas' },
+    { value: 'CA', text: 'California' }, { value: 'CO', text: 'Colorado' },
+    { value: 'CT', text: 'Connecticut' }, { value: 'DE', text: 'Delaware' },
+    { value: 'FL', text: 'Florida' }, { value: 'GA', text: 'Georgia' },
+    { value: 'HI', text: 'Hawaii' }, { value: 'ID', text: 'Idaho' },
+    { value: 'IL', text: 'Illinois' }, { value: 'IN', text: 'Indiana' },
+    { value: 'IA', text: 'Iowa' }, { value: 'KS', text: 'Kansas' },
+    { value: 'KY', text: 'Kentucky' }, { value: 'LA', text: 'Louisiana' },
+    { value: 'ME', text: 'Maine' }, { value: 'MD', text: 'Maryland' },
+    { value: 'MA', text: 'Massachusetts' }, { value: 'MI', text: 'Michigan' },
+    { value: 'MN', text: 'Minnesota' }, { value: 'MS', text: 'Mississippi' },
+    { value: 'MO', text: 'Missouri' }, { value: 'MT', text: 'Montana' },
+    { value: 'NE', text: 'Nebraska' }, { value: 'NV', text: 'Nevada' },
+    { value: 'NH', text: 'New Hampshire' }, { value: 'NJ', text: 'New Jersey' },
+    { value: 'NM', text: 'New Mexico' }, { value: 'NY', text: 'New York' },
+    { value: 'NC', text: 'North Carolina' }, { value: 'ND', text: 'North Dakota' },
+    { value: 'OH', text: 'Ohio' }, { value: 'OK', text: 'Oklahoma' },
+    { value: 'OR', text: 'Oregon' }, { value: 'PA', text: 'Pennsylvania' },
+    { value: 'RI', text: 'Rhode Island' }, { value: 'SC', text: 'South Carolina' },
+    { value: 'SD', text: 'South Dakota' }, { value: 'TN', text: 'Tennessee' },
+    { value: 'TX', text: 'Texas' }, { value: 'UT', text: 'Utah' },
+    { value: 'VT', text: 'Vermont' }, { value: 'VA', text: 'Virginia' },
+    { value: 'WA', text: 'Washington' }, { value: 'WV', text: 'West Virginia' },
+    { value: 'WI', text: 'Wisconsin' }, { value: 'WY', text: 'Wyoming' }
   ]
 
   /*
@@ -122,34 +153,50 @@ angular.module('starter.controllers', ['starter.services'])
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
     console.log('Doing login', $scope.loginData);
-    $timeout(function() {
-      AuthenticationService.Login($scope.loginData.email, $scope.loginData.password, function (response) {
-        if (response.success) {
-          AuthenticationService.SetCredentials($scope.loginData.email, $scope.loginData.password, response.user);
-          $ionicHistory.nextViewOptions({disableBack: true});
-          $location.path('app/home');
-        } else {
-          FlashService.Error(response.message);
+    AuthenticationService.Login($scope.loginData.email, $scope.loginData.password, function (response) {
+      if (response.success) {
+        UserService.GetByUsername($scope.loginData.email)
+        .then(function (user){ //success
+          if (user) {
+            AuthenticationService.setCurrentUser(user);
+            $ionicHistory.nextViewOptions({disableBack: true});
+            $location.path('app/home');
+          }
+        }, function (error){ // error
           // An alert dialog
           $ionicPopup.alert({
             title: 'Login Failed.',
-            template: 'The email or password may be incorrect.'
+            template: 'Something bad happened: ' + error.statusText
           });
-        }
-      });
-    }, 1000);
+        });
+      } else {
+        FlashService.Error(response.data);
+        // An alert dialog
+        $ionicPopup.alert({
+          title: 'Login Failed.',
+          template: response.data
+        });
+      }
+    });
   };
 
 
   // Perform the register action when the user submits the register form
   $scope.doRegister = function() {
     console.log('Doing register', $scope.registerData);
-    $timeout(function() {
-      $scope.registerData.username = $scope.registerData.email;
-      $scope.registerData.birth_date = new Date($scope.registerData.birth_date);
-      UserService.Create($scope.registerData);
-      $scope.closeRegisterModal();
-    }, 1000);
+    $scope.registerData.username = $scope.registerData.email;
+    $scope.registerData.birth_date = new Date($scope.registerData.birth_date);
+    UserService.Create($scope.registerData).then(function (response){
+      if(response.success) {
+        $scope.closeRegisterModal();
+      } else {
+        // An alert dialog
+        $ionicPopup.alert({
+          title: 'Registration Failed.',
+          template: response.data
+        });
+      }
+    });
   };
 
   // Create the register modal that we will use later

@@ -1,21 +1,64 @@
-angular.module('starter.services', [])
-.factory('UserService', function($timeout, $filter, $q) {
+angular.module('starter.services', ['starter.config'])
+.factory('UserService', function($http, AppConfig) {
   var service = {};
-  service.GetAll = GetAll;
-  service.GetById = GetById;
-  service.GetByUsername = GetByUsername;
-  service.Create = Create;
-  service.Update = Update;
-  service.Delete = Delete;
+  if(AppConfig.apiLocal) { // If the API is set to local, user the Local functions
+    service.GetAll = GetAllLocal;
+    service.GetById = GetByIdLocal;
+    service.GetByUsername = GetByUsernameLocal;
+    service.Create = CreateLocal;
+    service.Update = UpdateLocal;
+    service.Delete = DeleteLocal;
+  } else { // else use the actual API functions.
+    service.GetAll = GetAll;
+    service.GetById = GetById;
+    service.GetByUsername = GetByUsername;
+    service.Create = Create;
+    service.Update = Update;
+    service.Delete = Delete;
+  }
   return service;
 
+  // API Service Functions
   function GetAll() {
+    return $http.get(AppConfig.apiUrl + AppConfig.getUserApi).then(handleSuccess, handleError);
+  }
+
+  function GetById(id) {
+    return $http.get(AppConfig.apiUrl + AppConfig.getUserApi + id).then(handleSuccess, handleError);
+  }
+
+  function GetByUsername(username) {
+    return $http.get(AppConfig.apiUrl + AppConfig.getUserApi + username).then(handleSuccess, handleError);
+  }
+
+  function Create(user) {
+    return $http.post(AppConfig.apiUrl + AppConfig.addUserApi + user.username, user).then(handleSuccess, handleError);
+  }
+
+  function Update(user) {
+    return $http.put(AppConfig.apiUrl + AppConfig.updateUserApi + user.username, user).then(handleSuccess, handleError);
+  }
+
+  function Delete(id) {
+    return $http.delete(AppConfig.apiUrl + AppConfig.deleteUserApi + username).then(handleSuccess, handleError);
+  }
+
+  function handleSuccess(response) {
+    return { success:true, code:response.status, data: response.data };
+  }
+
+  function handleError(response) {
+    return { success: false, code:response.status , data: response.statusText };
+  }
+
+  // Local Service Functions
+  function GetAllLocal() {
     var deferred = $q.defer();
     deferred.resolve(getUsers());
     return deferred.promise;
   }
 
-  function GetById(id) {
+  function GetByIdLocal(id) {
     var deferred = $q.defer();
     var filtered = $filter('filter')(getUsers(), { id: id });
     var user = filtered.length ? filtered[0] : null;
@@ -23,7 +66,7 @@ angular.module('starter.services', [])
     return deferred.promise;
   }
 
-  function GetByUsername(username) {
+  function GetByUsernameLocal(username) {
     var deferred = $q.defer();
     var filtered = $filter('filter')(getUsers(), { username: username });
     var user = filtered.length ? filtered[0] : null;
@@ -31,7 +74,7 @@ angular.module('starter.services', [])
     return deferred.promise;
   }
 
-  function Create(user) {
+  function CreateLocal(user) {
     var deferred = $q.defer();
     $timeout(function () {
       GetByUsername(user.username)
@@ -43,6 +86,7 @@ angular.module('starter.services', [])
 
           var lastUser = users[users.length - 1] || { id: 0 };
           user.id = lastUser.id + 1;
+          user.authtoken = 'sometoken';
 
           users.push(user);
           setUsers(users);
@@ -54,7 +98,7 @@ angular.module('starter.services', [])
     return deferred.promise;
   }
 
-  function Update(user) {
+  function UpdateLocal(user) {
     var deferred = $q.defer();
     var users = getUsers();
     for (var i = 0; i < users.length; i++) {
@@ -68,7 +112,7 @@ angular.module('starter.services', [])
     return deferred.promise;
   }
 
-  function Delete(id) {
+  function DeleteLocal(id) {
     var deferred = $q.defer();
     var users = getUsers();
     for (var i = 0; i < users.length; i++) {
@@ -87,16 +131,17 @@ angular.module('starter.services', [])
     if(!localStorage.users){
       localStorage.users = JSON.stringify([]);
     }
-
     return JSON.parse(localStorage.users);
   }
 
   function setUsers(users) {
     localStorage.users = JSON.stringify(users);
   }
+
+
 })
 
-.factory('AuthenticationService', function($http, $cookieStore, $rootScope, $timeout, UserService){
+.factory('AuthenticationService', function($http, $cookieStore, $rootScope, $timeout, UserService, AppConfig){
   var service = {};
   service.Login = Login;
   service.SetCredentials = SetCredentials;
@@ -106,42 +151,61 @@ angular.module('starter.services', [])
   return service;
 
   function Login(username, password, callback) {
-    /* Dummy authentication for testing, uses $timeout to simulate api call */
-    $timeout(function () {
-      var response;
-      UserService.GetByUsername(username)
-      .then(function (user) {
-        if (user !== null && user.password === password) {
-          response = { success: true, user: user };
-        } else {
-          response = { success: false, message: 'Username or password is incorrect'};
+
+    /* If our config points to 'Local' we use dummy authentication for testing, uses $timeout to simulate api call */
+    if(AppConfig.apiLocal) {
+      $timeout(function () {
+        var response;
+        UserService.GetByUsername(username)
+        .then(function (user) {
+          if (user !== null && user.password === password) {
+            SetCredentials(username, password, user.token);
+            response = { success: true, code:200 , data: 'Ok' };
+          } else {
+            response = { success: false, code:401 , data: 'Username or password is incorrect'};
+          }
+          callback(response);
+        });
+      }, 1000);
+    } else { /* Else, use real API Authentication */
+      $http.post(AppConfig.apiUrl + AppConfig.loginUserApi + username, { password: password })
+      .then(function (resp) { // success
+        var token = resp.data;
+        if(token && token.authtoken){
+          SetCredentials(username, password, token.authtoken);
+          var response = { success: true, code: resp.status ,data: 'Ok' };
+          callback(response);
         }
+      }, function (resp){ // error
+        var response = { success: false, code: resp.status, data: resp.statusText };
         callback(response);
       });
-    }, 1000);
-    /* Use this for real authentication
-    $http.post('/api/authenticate', { username: username, password: password })
-    .success(function (response) {
-      callback(response);
-    });
-    */
+    }
   }
 
-  function SetCredentials(username, password, user) {
-    var authdata = Base64.encode(username + ':' + password);
+  function SetCredentials(username, password, token) {
     $rootScope.globals = {
       currentUser: {
         username: username,
-        authdata: authdata,
-        user: user
+        password: password,
+        authdata: token
       }
     };
-    $http.defaults.headers.common['Authorization'] = 'Basic ' + authdata; // jshint ignore:line
+    // Setting the authentication token/credentials for all http requests
+    $http.defaults.headers.common['AuthToken'] = authdata;
+    $httpProvider.defaults.headers.get['AuthToken'] = authdata;
     $cookieStore.put('globals', $rootScope.globals);
   }
 
-  function CurrentUser(){
+  function setCurrentUser(user){
     if($rootScope.globals.currentUser){
+      $rootScope.globals.currentUser['user'] = user;
+      $cookieStore.put('globals', $rootScope.globals);
+    }
+  }
+
+  function CurrentUser(){
+    if($rootScope.globals.currentUser && $rootScope.globals.currentUser.user){
       return $rootScope.globals.currentUser.user;
     } else {
       return {};
@@ -160,7 +224,9 @@ angular.module('starter.services', [])
   function ClearCredentials() {
     $rootScope.globals = {};
     $cookieStore.remove('globals');
-    $http.defaults.headers.common.Authorization = 'Basic ';
+    // Clearing the authentication token/credentials for all http requests
+    $http.defaults.headers.common['AuthToken'] = '';
+    $httpProvider.defaults.headers.get['AuthToken'] = '';
   }
 })
 
@@ -204,54 +270,6 @@ angular.module('starter.services', [])
     };
   }
 });
-
-/*
-.factory('UserService', function($http) {
-  var service = {};
-  service.GetAll = GetAll;
-  service.GetById = GetById;
-  service.GetByUsername = GetByUsername;
-  service.Create = Create;
-  service.Update = Update;
-  service.Delete = Delete;
-  return service;
-
-  function GetAll() {
-    return $http.get('/api/users').then(handleSuccess, handleError('Error getting all users'));
-  }
-
-  function GetById(id) {
-    return $http.get('/api/users/' + id).then(handleSuccess, handleError('Error getting user by id'));
-  }
-
-  function GetByUsername(username) {
-    return $http.get('/api/users/' + username).then(handleSuccess, handleError('Error getting user by username'));
-  }
-
-  function Create(user) {
-    return $http.post('/api/users', user).then(handleSuccess, handleError('Error creating user'));
-  }
-
-  function Update(user) {
-    return $http.put('/api/users/' + user.id, user).then(handleSuccess, handleError('Error updating user'));
-  }
-
-  function Delete(id) {
-    return $http.delete('/api/users/' + id).then(handleSuccess, handleError('Error deleting user'));
-  }
-
-  function handleSuccess(res) {
-    return res.data;
-  }
-
-  function handleError(error) {
-    return function () {
-      return { success: false, message: error };
-    };
-  }
-})
-*/
-
 
 
 // Base64 encoding service used by AuthenticationService

@@ -7,38 +7,41 @@
   </ion-header-bar>
   <ion-content>
     <form  ng-submit="doRegister()">
+      
       <div class="list list-inset">
         <label class="item item-input">
-          <span class="input-label">First Name</span>
-          <input type="text" placeholder="John" ng-model="registerData.fname">
+          <span class="input-label">First Name <span class="assertive">*</span></span>
+          <input type="text" placeholder="John" ng-model="registerData.fname" required>
         </label>
         <label class="item item-input">
-          <span class="input-label">Last Name</span>
-          <input type="text" placeholder="Shepard" ng-model="registerData.lname">
+          <span class="input-label">Last Name <span class="assertive">*</span></span>
+          <input type="text" placeholder="Shepard" ng-model="registerData.lname" required>
         </label>
         <label class="item item-input">
-          <span class="input-label">Email</span>
-          <input type="email" placeholder="john.shepard@N7.com" ng-model="registerData.email">
+          <span class="input-label">Email <span class="assertive">*</span></span>
+          <input type="email" placeholder="john.shepard@N7.com" ng-model="registerData.email" required>
         </label>
         <label class="item item-input">
-          <span class="input-label">Password</span>
-          <input type="password" placeholder="Secret" ng-model="registerData.password">
+          <span class="input-label">Password <span class="assertive">*</span></span>
+          <input type="password" placeholder="Secret" ng-model="registerData.password" required>
         </label>
         <label class="item item-input">
-          <span class="input-label">Birth Date</span>
-          <input type="date" placeholder="2154-04-11" ng-model="registerData.birth_date">
+          <span class="input-label">Birth Date <span class="assertive">*</span></span>
+          <input type="date" placeholder="2154-04-11" ng-model="registerData.birth_date" required>
         </label>
         <label class="item item-input">
-          <span class="input-label">Height</span>
-          <input type="number" placeholder="(inches)" ng-model="registerData.height">
+          <span class="input-label">Height <span class="assertive">*</span></span>
+          <input type="number" placeholder="(inches)" ng-model="registerData.height" required>
         </label>
         <label class="item item-input">
-          <span class="input-label">Weight</span>
-          <input type="number" placeholder="(lbs)" ng-model="registerData.weight">
+          <span class="input-label">Waist <span class="assertive">*</span></span>
+          <input type="number" placeholder="(inches)" ng-model="registerData.waist_size" required>
         </label>
-        <div class="item item-divider">
-          Gender
-        </div>
+        <label class="item item-input">
+          <span class="input-label">Weight <span class="assertive">*</span></span>
+          <input type="number" placeholder="(lbs)" ng-model="registerData.weight" required>
+        </label>
+
         <!--
         <label class="item item-text-wrap item-radio">
           <input type="radio" name="gender" value="male" ng-model="registerData.gender">
@@ -55,11 +58,48 @@
           <i class="radio-icon ion-checkmark"></i>
         </label>
         -->
-        <ion-radio-fix ng-repeat="item in genderList" ng-value="item.value" ng-model="registerData.gender">{{item.text}}</ion-radio-fix>
-        <label class="item">
-          <button class="button button-block button-positive" type="submit">Sign Up</button>
+      </div>
+
+      <div class="list list-inset">
+        <div class="item item-divider">
+          Gender <span class="assertive">*</span>
+        </div>
+        <ion-radio-fix ng-repeat="item in genderList" ng-value="item.value" ng-model="registerData.gender" required>{{item.text}}</ion-radio-fix>
+      </div>
+
+      <div class="list list-inset">
+        <div class="item item-divider">
+          Address
+        </div>
+        <label class="item item-input">
+          <span class="input-label">Street <span class="assertive">*</span></span>
+          <input type="text" placeholder="1 Awesome Way" ng-model="registerData.address1" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Street 2</span>
+          <input type="text" placeholder="(Optional)" ng-model="registerData.address2">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">City <span class="assertive">*</span></span>
+          <input type="text" placeholder="New York" ng-model="registerData.city" required>
+        </label>
+        <label class="item item-input item-select">
+          <div class="input-label">
+            State <span class="assertive">*</span>
+          </div>
+          <select ng-model="registerData.state" style="direction: ltr !important;">
+            <option value="" selected>Select a State</option>
+            <option ng-repeat="item in stateList" ng-value="iten.value">{{item.text}}</option>
+          </select>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">ZipCode <span class="assertive">*</span></span>
+          <input type="text" placeholder="12345" ng-model="registerData.zip" required>
         </label>
       </div>
+
+      <button class="button button-full button-positive" type="submit">Sign Up</button>
+
     </form>
   </ion-content>
 </ion-modal-view>
