@@ -65,6 +65,18 @@ class api
 			case 'addUser':
 				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password']);
 			break;
+			case 'getUser':
+				$retval=$this->datastore->getUser($this->furl_id,$this->requestVars['authtoken']);
+			break;
+			case 'addWorkout':
+				$retval=$this->datastore->addWorkout($this->requestVars['authtoken'],$this->requestVars['workout_type'],$this->requestVars['distance'],$this->requestVars['workout_time'],$this->requestVars['calories']);
+			break;
+			case 'getAllWorkout':
+				$retval=$this->datastore->getAllWorkout($this->requestVars['authtoken']);
+			break;
+			case 'getWorkout':
+				$retval=$this->datastore->getWorkout($this->requestVars['authtoken'],$this->furl_id);
+			break;
 			default:
 				throw new apiException('function not found',1);
 			break;
