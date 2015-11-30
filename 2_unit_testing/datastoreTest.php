@@ -8,6 +8,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	protected static $email='test@testemail.com';
 	protected static $authtoken;
 	protected static $workout_id;
+	protected static $userfood_id;
 
 	public static function dataProvider(){
 		return [[[
@@ -23,7 +24,8 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	public static function tearDownAfterClass(){
 		self::$ds->db->query('DELETE FROM people WHERE email="'.self::$email.'"');
 		self::$ds->db->query('DELETE FROM session WHERE authtoken="'.self::$authtoken.'"');
-		//self::$ds->db->query('DELETE FROM workout WHERE workout_id="'.self::$workout_id.'"');
+		self::$ds->db->query('DELETE FROM workout WHERE workout_id="'.self::$workout_id.'"');
+		self::$ds->db->query('DELETE FROM food WHERE userfood_id="'.self::$userfood_id.'"');
 		self::$ds=NULL;
 	}
 
@@ -288,13 +290,108 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage Invalid Workout Duration
      */
     public function test_addWorkoutInvalidWorkoutDurationException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,'120.0ddd',0.5,'2015-11-05T13:12:43.511Z',200.00);    }
+    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,'120.0ddd',0.5,'2015-11-05T13:12:43.511Z',200.00);
+    }
 
     /**
      * @expectedException DatastoreException
 	 * @expectedExceptionMessage Invalid Workout Calories
      */
     public function test_addWorkoutInvalidWorkoutCaloriesException(){
-    	    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,0.5,'2015-11-05T13:12:43.511Z','20.dfer');
+		$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,0.5,'2015-11-05T13:12:43.511Z','20.dfer');
     }
+
+	public function test_getWorkout(){
+		$x=self::$ds->getWorkout(self::$authtoken,self::$workout_id);
+		$this->assertRegExp('/{"workout_id":/', $x);
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage Workout_id not found
+     */
+    public function test_getWorkoutIdNotFoundException(){
+		$x=self::$ds->getWorkout(self::$authtoken,0);
+    }
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You do not have the rights to perform this action
+     */
+	public function test_getWorkoutAllNonAdmin(){
+		$x=self::$ds->getWorkoutAll(self::$authtoken);
+	}
+
+	public function test_getWorkoutUser(){
+		$x=self::$ds->getWorkoutUser(self::$authtoken,self::$email);
+		$this->assertRegExp('/\\[{"workout_id":/', $x);
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage User workouts not found
+     */
+    public function test_getWorkoutUserNotFoundException(){
+		$x=self::$ds->getWorkoutUser(self::$authtoken,'');
+    }
+
+	public function test_getFoodList(){
+		$x=self::$ds->getFoodList(self::$authtoken,self::$email);
+		$this->assertRegExp('/\\[{"food_id":/', $x);
+	}
+
+	public function test_addFood(){
+		$x=self::$ds->addFood(self::$authtoken,2,2.5,'breakfast','2015-11-23T14:34:43.954Z');
+		$newFood=json_decode($x,TRUE);
+		self::$userfood_id=$newFood['userfood_id'];
+		$this->assertRegExp('/{"userfood_id":"/', $x);
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Food
+     */
+	public function test_addFoodMissingFood(){
+		$x=self::$ds->addFood(self::$authtoken,'',2.5,'breakfast','2015-11-23T14:34:43.954Z');
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Serving
+     */
+	public function test_addFoodMissingServing(){
+		$x=self::$ds->addFood(self::$authtoken,2,'','breakfast','2015-11-23T14:34:43.954Z');
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Meal
+     */
+	public function test_addFoodMissingMeal(){
+		$x=self::$ds->addFood(self::$authtoken,2,2.5,'','2015-11-23T14:34:43.954Z');
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage You must provide the Food Timestamp
+     */
+	public function test_addFoodMissingFoodTimestamp(){
+		$x=self::$ds->addFood(self::$authtoken,2,2.5,'breakfast','');
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage Invalid Serving
+     */
+	public function test_addFoodInvalidServing(){
+		$x=self::$ds->addFood(self::$authtoken,2,'2.5x','breakfast','2015-11-23T14:34:43.954Z');
+	}
+
+    /**
+     * @expectedException DatastoreException
+	 * @expectedExceptionMessage This food does not exist
+     */
+	public function test_addFoodFoodDoesNotExist(){
+		$x=self::$ds->addFood(self::$authtoken,9000,2.5,'breakfast','2015-11-23T14:34:43.954Z');
+	}
 }

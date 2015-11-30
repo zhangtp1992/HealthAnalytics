@@ -41,7 +41,7 @@ class datastore
 
 	private function __authenticateUser($authtoken){
 		try{
-			$pstmt=$this->db->prepare('SELECT people.pkey,people.fname,people.lname,people.email FROM session INNER JOIN people ON people.pkey=session.person WHERE authtoken=?');
+			$pstmt=$this->db->prepare('SELECT people.pkey,people.fname,people.lname,people.email,people.role FROM session INNER JOIN people ON people.pkey=session.person WHERE authtoken=?');
 			$pstmt->execute([$authtoken]);
 			if($pstmt->rowCount()>0){
 				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
@@ -50,6 +50,38 @@ class datastore
 			else{throw new DatastoreException('User is not authenticated',3);}
 		}
 		catch(PDOException $e){throw new DatastoreException('ERROR, unable to authenication user',2);}
+	}
+
+	private function __typecast($table,$record){
+		$flds=[
+			'workout'=>['workout_id','calories','distance','duration','pace'],
+			'user'=>['waist_size','height','weight'],
+			'food'=>['food_id','calories','serving_size_normalized','total_calories','total_mass']
+		];
+		foreach($flds[$table] as $key=>$val){
+			if(isset($record[$val])){$record[$val]=(int)$record[$val];}
+		}
+		return $record;
+	}
+
+	public function addFood($authtoken,$food,$serving,$meal,$food_timestamp){
+		$this->__authenticateUser($authtoken);
+		if(empty($food)){throw new DatastoreException('You must provide the Food',5);}
+		if(empty($serving)){throw new DatastoreException('You must provide the Serving',5);}
+		if(empty($meal)){throw new DatastoreException('You must provide the Meal',5);}
+		if(empty($food_timestamp)){throw new DatastoreException('You must provide the Food Timestamp',5);}
+		if(!is_numeric($serving)){throw new DatastoreException('Invalid Serving',5);}
+		try{
+			$pstmt=$this->db->prepare('INSERT INTO food (food,serving,meal,food_timestamp,person) VALUES(?,?,?,?,?)');
+			$pstmt->execute([$food,$serving,$meal,$food_timestamp,$this->authenticatedUser['pkey']]);
+			return(json_encode(['userfood_id'=>$this->db->lastInsertId()]));
+		}
+		catch(PDOException $e){
+			$this->__logError($e->getMessage(),__FUNCTION__);
+			if($e->errorInfo[1]==1452){$txt='This food does not exist';$code=4;}
+			else{$txt='Unable to create food';$code=2;}
+			throw new DatastoreException($txt,$code);
+		}
 	}
 
 	public function addUser($fname,$lname,$email,$passwd,$mi,$weight,$height,$birth_date,$gender,$waist_size,$address1,$address2,$city,$state,$zip){
@@ -119,14 +151,152 @@ class datastore
 			$pstmt->execute([$email]);
 			$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
 			if($rs['email']!=$this->authenticatedUser['email']){throw new DatastoreException('You cannot retrieve this user',2);}
-			$rs['waist_size']=(int)$rs['waist_size'];
-			$rs['height']=(int)$rs['height'];
-			$rs['weight']=(int)$rs['weight'];
-			return json_encode($rs);
+			return json_encode($this->__typecast('user',$rs));
 		}
 		catch(PDOException $e){throw new DatastoreException('Unable to retrieve user',1);}
 	}
 
+	function getFood($authtoken,$userfood_id){
+		$this->__authenticateUser($authtoken);
+		try{
+			$valid=FALSE;
+			$pstmt=$this->db->prepare('SELECT * FROM getFoodView WHERE userfood_id=?');
+			$pstmt->execute([$userfood_id]);
+			if($pstmt->rowCount()>0){
+				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
+				if($rs['email']==$this->authenticatedUser['email']){
+					$valid=TRUE;
+					return(json_encode($this->__typecast('food',$rs)));
+				}
+			}
+			if(!$valid){throw new DatastoreException('Userfood_id not found',1);}
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch food',2);}
+	}
+
+	function getFoodAll($authtoken){
+		$this->__authenticateUser($authtoken);
+		if($this->authenticatedUser['role']!='admin'){throw new DatastoreException('You do not have the rights to perform this action',3);}
+		try{
+			$food=[];
+			$stmt=$this->db->query('SELECT * FROM getFoodView');
+			if($stmt->rowCount()>0){
+				while($rs=$stmt->fetch(PDO::FETCH_ASSOC)){
+					$user[]=$this->__typecast('food',$rs);
+				}
+			}
+			return(json_encode($user));
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch all userfood',2);}
+	}
+
+	function getFoodList($authtoken){
+		$this->__authenticateUser($authtoken);
+		try{
+			$food=[];
+			$stmt=$this->db->query('SELECT * FROM food_list');
+			if($stmt->rowCount()>0){
+				while($rs=$stmt->fetch(PDO::FETCH_ASSOC)){
+					$food[]=$this->__typecast('food',$rs);
+				}
+			}
+			return(json_encode($food));
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch food list',2);}
+	}
+
+	function getFoodUser($authtoken,$email){
+		$this->__authenticateUser($authtoken);
+		try{
+			$valid=FALSE;
+			if($email==$this->authenticatedUser['email']){
+				$valid=TRUE;
+				$pstmt=$this->db->prepare('SELECT * FROM getFoodView WHERE email=?');
+				$pstmt->execute([$email]);
+				if($pstmt->rowCount()>0){
+					$food=[];
+					while($rs=$pstmt->fetch(PDO::FETCH_ASSOC)){
+						$food[]=$this->__typecast('food',$rs);
+					}
+				}
+				else{$valid=FALSE;}
+			}
+			if(!$valid){throw new DatastoreException('User food not found',1);}
+			else{return(json_encode($food));}
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch user food',2);}
+	}
+
+	function getUserAll($authtoken){
+		$this->__authenticateUser($authtoken);
+		if($this->authenticatedUser['role']!='admin'){throw new DatastoreException('You do not have the rights to perform this action',3);}
+		try{
+			$user=[];
+			$stmt=$this->db->query('SELECT fname,mi,lname,role,email,weight,height,birth_date,gender,waist_size,address1,address2,city,state,zip FROM people');
+			if($stmt->rowCount()>0){
+				while($rs=$stmt->fetch(PDO::FETCH_ASSOC)){
+					$user[]=$this->__typecast('user',$rs);
+				}
+			}
+			return(json_encode($user));
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch all users',2);}
+	}
+
+	function getWorkout($authtoken,$workout_id){
+		$this->__authenticateUser($authtoken);
+		try{
+			$valid=FALSE;
+			$pstmt=$this->db->prepare('SELECT workout.workout_id,workout_type,distance,duration,calories,pace,workout_timestamp,email FROM workout INNER JOIN people ON people.pkey=workout.`person` WHERE workout.workout_id=?');
+			$pstmt->execute([$workout_id]);
+			if($pstmt->rowCount()>0){
+				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
+				if($rs['email']==$this->authenticatedUser['email']){
+					$valid=TRUE;
+					return(json_encode($this->__typecast('user',$rs)));
+				}
+			}
+			if(!$valid){throw new DatastoreException('Workout_id not found',1);}
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch workout',2);}
+	}
+
+	function getWorkoutAll($authtoken){
+		$this->__authenticateUser($authtoken);
+		if($this->authenticatedUser['role']!='admin'){throw new DatastoreException('You do not have the rights to perform this action',3);}
+		try{
+			$workout=[];
+			$stmt=$this->db->query('SELECT workout.workout_id,email,workout_type,distance,duration,calories,pace,workout_timestamp FROM workout INNER JOIN people ON people.pkey=workout.`person`');
+			if($stmt->rowCount()>0){
+				while($rs=$stmt->fetch(PDO::FETCH_ASSOC)){
+					$workout[]=$this->__typecast('workout',$rs);
+				}
+			}
+			return(json_encode($workout));
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch food list',2);}
+	}
+
+	function getWorkoutUser($authtoken,$email){
+		$this->__authenticateUser($authtoken);
+		try{
+			$valid=FALSE;
+			if($email==$this->authenticatedUser['email']){
+				$valid=TRUE;
+				$pstmt=$this->db->prepare('SELECT workout.workout_id,workout_type,distance,duration,calories,pace,workout_timestamp,email FROM workout INNER JOIN people ON people.pkey=workout.`person` WHERE people.email=?');
+				$pstmt->execute([$email]);
+				if($pstmt->rowCount()>0){
+					while($rs=$pstmt->fetch(PDO::FETCH_ASSOC)){
+						$workout[]=$this->__typecast('workout',$rs);
+					}
+				}
+				else{$valid=FALSE;}
+			}
+			if(!$valid){throw new DatastoreException('User workouts not found',1);}
+			else{return(json_encode($workout));}
+		}
+		catch(PDOException $e){throw new DatastoreException('Unable to fetch user workouts',2);}
+	}
 
 	public function loginUser($email,$password){
         $length=32;
@@ -164,34 +334,6 @@ class datastore
 			return('{"results":"Logout Complete"}');
 		}
 		catch(PDOException $e){throw new DatastoreException('Unable to logout user',1);}
-	}
-
-	function getAllWorkout($authtoken){
-		$this->__authenticateUser($authtoken);
-		try{
-			$workout=[];
-			$stmt=$this->db->query('SELECT workout.workout_id,workout_type,distance,workout_time,calories,ts,email FROM workout INNER JOIN people ON people.pkey=workout.`person`');
-			if($stmt->rowCount()>0){
-				while($rs=$stmt->fetch(PDO::FETCH_ASSOC)){
-					$workout[]=$rs;
-				}
-			}
-			return(json_encode($workout));
-		}
-		catch(PDOException $e){throw new DatastoreException('Unable to fetch all workouts',1);}
-	}
-
-	function getWorkout($authtoken,$workout_id){
-		$this->__authenticateUser($authtoken);
-		try{
-			$pstmt=$this->db->prepare('SELECT workout.workout_id,workout_type,distance,workout_time,calories,ts,email FROM workout INNER JOIN people ON people.pkey=workout.`person` WHERE workout.workout_id=?');
-			$pstmt->execute([$workout_id]);
-			if($pstmt->rowCount()>0){
-				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
-				return(json_encode($rs));
-			}
-		}
-		catch(PDOException $e){throw new DatastoreException('Unable to fetch workout',1);}
 	}
 
 }

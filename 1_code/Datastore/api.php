@@ -63,26 +63,47 @@ class api
 	public function processRequest(){
 		$retval='';
 		switch($this->furl_function){
+			case 'addUser':
+				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password'],$this->requestVars['mi'],$this->requestVars['weight'],$this->requestVars['height'],$this->requestVars['birth_date'],$this->requestVars['gender'],$this->requestVars['waist_size'],$this->requestVars['address1'],$this->requestVars['address2'],$this->requestVars['city'],$this->requestVars['state'],$this->requestVars['zip']);
+			break;
+			case 'addWorkout':
+				$retval=$this->datastore->addWorkout($this->requestVars['authtoken'],$this->requestVars['workout_type'],$this->requestVars['distance'],$this->requestVars['duration'],$this->requestVars['pace'],$this->requestVars['workout_timestamp'],$this->requestVars['calories']);
+			break;
+			case 'addFood':
+				$retval=$this->datastore->addFood($this->requestVars['authtoken'],$this->requestVars['food'],$this->requestVars['serving'],$this->requestVars['meal'],$this->requestVars['food_timestamp']);
+			break;
+			case 'getFood':
+				$retval=$this->datastore->getFood($this->requestVars['authtoken'],$this->furl_id);
+			break;
+			case 'getFoodAll':
+				$retval=$this->datastore->getFoodAll($this->requestVars['authtoken']);
+			break;
+			case 'getFoodList':
+				$retval=$this->datastore->getFoodList($this->requestVars['authtoken']);
+			break;
+			case 'getFoodUser':
+				$retval=$this->datastore->getFoodUser($this->requestVars['authtoken'],$this->furl_id);
+			break;
+			case 'getUser':
+				$retval=$this->datastore->getUser($this->furl_id,$this->requestVars['authtoken']);
+			break;
+			case 'getUserAll':
+				$retval=$this->datastore->getUserAll($this->requestVars['authtoken']);
+			break;
+			case 'getWorkout':
+				$retval=$this->datastore->getWorkout($this->requestVars['authtoken'],$this->furl_id);
+			break;
+			case 'getWorkoutAll':
+				$retval=$this->datastore->getWorkoutAll($this->requestVars['authtoken']);
+			break;
+			case 'getWorkoutUser':
+				$retval=$this->datastore->getWorkoutUser($this->requestVars['authtoken'],$this->furl_id);
+			break;
 			case 'loginUser':
 				$retval=$this->datastore->loginUser($this->furl_id,$this->requestVars['password']);
 			break;
 			case 'logoutUser':
 				$retval=$this->datastore->logoutUser($this->requestVars['authtoken'],$this->furl_id);
-			break;
-			case 'addUser':
-				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password'],$this->requestVars['mi'],$this->requestVars['weight'],$this->requestVars['height'],$this->requestVars['birth_date'],$this->requestVars['gender'],$this->requestVars['waist_size'],$this->requestVars['address1'],$this->requestVars['address2'],$this->requestVars['city'],$this->requestVars['state'],$this->requestVars['zip']);
-			break;
-			case 'getUser':
-				$retval=$this->datastore->getUser($this->furl_id,$this->requestVars['authtoken']);
-			break;
-			case 'addWorkout':
-				$retval=$this->datastore->addWorkout($this->requestVars['authtoken'],$this->requestVars['workout_type'],$this->requestVars['distance'],$this->requestVars['duration'],$this->requestVars['pace'],$this->requestVars['workout_timestamp'],$this->requestVars['calories']);
-			break;
-			case 'getAllWorkout':
-				$retval=$this->datastore->getAllWorkout($this->requestVars['authtoken']);
-			break;
-			case 'getWorkout':
-				$retval=$this->datastore->getWorkout($this->requestVars['authtoken'],$this->furl_id);
 			break;
 			default:
 				throw new apiException('function not found',1);
@@ -92,10 +113,7 @@ class api
 	}
 }
 
-if(strtoupper($_SERVER['REQUEST_METHOD'])=='OPTIONS'){
-	//Header('200 OK');
-	exit;
-}
+if(strtoupper($_SERVER['REQUEST_METHOD'])=='OPTIONS'){exit;}
 try{
 	$api=new api();
 	$results=$api->processRequest();

@@ -6,8 +6,70 @@
 			table{border-collapse:collapse;margin-bottom:20px}
 			.functionName{font-weight:bold;background-color:lightblue}
 			.b{font-weight:bold}
+			table.toc td{padding:6px 16px;border:0px #000 solid;vertical-align:top}
 		</style>
 	</head>
+	<table class="toc">
+		<tr>
+			<td>
+				<a href="#addUser">addFood</a><br>
+				<a href="#addUser">addUser</a><br>
+				<a href="#addWorkout">addWorkout</a>
+			</td>
+			<td>
+				<a href="#getFood">getFood</a><br>
+				<a href="#getFoodAll">getFoodAll</a><br>
+				<a href="#getFoodList">getFoodList</a><br>
+				<a href="#getFoodUser">getFoodUser</a><br>
+				<a href="#getUser">getUser</a><br>
+				<a href="#getUserAll">getUserAll</a><br>
+				<a href="#getWorkout">getWorkout</a><br>
+				<a href="#getWorkoutAll">getWorkoutAll</a><br>
+				<a href="#getWorkoutUser">getWorkoutUser</a>
+			</td>
+			<td>
+				<a href="#loginUser">loginUser</a><br>
+				<a href="#logoutUser">logoutUser</a>
+			</td>
+		</tr>
+	</table>
+	<a name="addFood" />
+	<table>
+		<tr><td colspan="2" class="functionName">addFood</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/addFood/?authtoken=:authtoken&food=:food&serving=:serving&meal=:meal&food_timestamp=:food_timestamp</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				food=[int]<br>
+				serving=[float(4,2)]<br>
+				meal=[string(25)]<br>
+				food_timestampe=[UTC formatted date]<br>
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing userfood_id</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 400: You must provide the Food<br>
+				Code 400: You must provide the Serving<br>
+				Code 400: You must provide the Meal<br>
+				Code 400: You must provide the Food Timestamp<br>
+				Code 400: Invalid Serving<br>
+				Code 409: This food does not exist<br>
+				Code 500: Unable to create food
+			</td>
+		</tr>
+	</table>
+	<a name="addUser" />
 	<table>
 		<tr><td colspan="2" class="functionName">addUser</td></tr>
 		<tr>
@@ -61,11 +123,11 @@
 				Code 400: Invalid Weight<br>
 				Code 400: Invalid Waist Line<br>
 				Code 409: This email address already exists<br>
-				Code 505: Unable to create user<br>
+				Code 500: Unable to create user<br>
 			</td>
 		</tr>
 	</table>
-
+	<a name="addWorkout" />
 	<table>
 		<tr><td colspan="2" class="functionName">addWorkout</td></tr>
 		<tr>
@@ -85,6 +147,7 @@
 				calories=[int]<br>
 				pace=[float(5,2)] <i>miles per minute</i><br>
 				workout_timestamp=[UTC formatted date]<br>
+				authtoken=[string(32)]
 			</td>
 		</tr>
 		<tr>
@@ -103,11 +166,135 @@
 				Code 400: Invalid Workout Duration<br>
 				Code 400: Invalid Workout Calories<br>
 				Code 400: Invalid Workout Pace<br>
-				Code 505: Unable to create workout<br>
+				Code 500: Unable to create workout<br>
+			</td>
+		</tr>
+	</table>
+	<a name="getFood" />
+	<table>
+		<tr><td colspan="2" class="functionName">getFood</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getUser/:userfood_id?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				authtoken=[string(32)]
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: A JSON string containing the Food data</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 500: You cannot retrieve this food<br>
+				Code 500: Unable to retrieve food
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>At this point in time you can only retrieve yourself</td>
+		</tr>
+	</table>
+	<a name="getFoodAll" />
+	<table>
+		<tr><td colspan="2" class="functionName">getFoodAll</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getFoodAll?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>authtoken=[string(32)]</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing all userfood data (If Admin Only)</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>
+				Code 401: You do not have the rights to perform this action (If NOT Admin)<br>
+				Code 500: Unable to fetch all userfood
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>This returns ALL userfood in the database</td>
+		</tr>
+	</table>
+	<a name="getFoodList" />
+	<table>
+		<tr><td colspan="2" class="functionName">getFoodList</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getFoodList?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				authtoken=[string(32)]
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: A JSON string containing all food</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>
+				Code 500: Unable to fetch food list
 			</td>
 		</tr>
 	</table>
 
+	<a name="getFoodUser" />
+	<table>
+		<tr><td colspan="2" class="functionName">getFoodUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getFood/:email?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>authtoken=[string(32)]</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing all userfood data for that user</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 404: User food not found<br>
+				Code 500: Unable to fetch userfood
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>You can only access your own userfood records</td>
+		</tr>
+	</table>
+
+
+	<a name="getUser" />
 	<table>
 		<tr><td colspan="2" class="functionName">getUser</td></tr>
 		<tr>
@@ -121,7 +308,7 @@
 		<tr>
 			<td class="b">URL Params</td>
 			<td>
-				authtoken=[string]
+				authtoken=[string(32)]
 			</td>
 		</tr>
 		<tr>
@@ -131,7 +318,7 @@
 		<tr>
 			<td class="b">Failure</td>
 			<td>Code 500: You cannot retrieve this user<br>
-				Code 505: Unable to retrieve user
+				Code 500: Unable to retrieve user
 			</td>
 		</tr>
 		<tr>
@@ -139,6 +326,129 @@
 			<td>At this point in time you can only retrieve yourself</td>
 		</tr>
 	</table>
+	<a name="getUserAll" />
+	<table>
+		<tr><td colspan="2" class="functionName">getUserAll</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getUserAll?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>authtoken=[string(32)]</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing all users data (If Admin Only)</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>
+				Code 401: You do not have the rights to perform this action (If NOT Admin)<br>
+				Code 500: Unable to Unable to fetch all users
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>This returns ALL users in the database</td>
+		</tr>
+	</table>
+	<a name="getWorkout" />
+	<table>
+		<tr><td colspan="2" class="functionName">getWorkout</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getWorkout/:workout_id?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>authtoken=[string(32)]</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing a single workout record</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 404: Workout_id not found<br>
+				Code 500: Unable to fetch workout
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>You can only access your own workout records</td>
+		</tr>
+	</table>
+	<a name="getWorkoutAll" />
+	<table>
+		<tr><td colspan="2" class="functionName">getWorkoutAll</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getWorkoutAll?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>authtoken=[string(32)]</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing all workout data (If Admin Only)</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>
+				Code 401: You do not have the rights to perform this action (If NOT Admin)<br>
+				Code 500: Unable to Unable to fetch all workouts
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>This returns ALL workouts in the database</td>
+		</tr>
+	</table>
+	<a name="getWorkoutUser" />
+	<table>
+		<tr><td colspan="2" class="functionName">getWorkoutUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getWorkout/:email?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>authtoken=[string(32)]</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing all workout data for that user</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 404: User workouts not found<br>
+				Code 500: Unable to fetch user workouts
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>You can only access your own workout records</td>
+		</tr>
+	</table>
+	<a name="loginUser" />
 	<table>
 		<tr><td colspan="2" class="functionName">loginUser</td></tr>
 		<tr>
@@ -161,10 +471,11 @@
 			<td class="b">Failure</td>
 			<td>Code 401: ERROR, Invalid password<br>
 				Code 404: E-Mail Address not found<br>
-				Code 505: Unable to login
+				Code 500: Unable to login
 			</td>
 		</tr>
 	</table>
+	<a name="logoutUser" />
 	<table>
 		<tr><td colspan="2" class="functionName">logoutUser</td></tr>
 		<tr>
@@ -177,7 +488,7 @@
 		</tr>
 		<tr>
 			<td class="b">URL Params</td>
-			<td>authtoken=[string]</td>
+			<td>authtoken=[string(32)]</td>
 		</tr>
 		<tr>
 			<td class="b">Success</td>
