@@ -34,6 +34,7 @@ class api
 			break;
 		}
 		$this->requestVars=$requestVars;
+		if(isset($_SERVER['HTTP_AUTHTOKEN'])){$this->requestVars['authtoken']=$_SERVER['HTTP_AUTHTOKEN'];}
 		if(!empty($_GET)){
 			foreach($_GET as $key=>$val){
 				switch($key){
@@ -44,7 +45,10 @@ class api
 						$this->furl_id=$_GET['furl_id'];
 					break;
 					default:
-						$this->requestVars[$key]=$val;
+						#authtoken sent from header takes priority over authtoken sent via other method
+						if(($key=='authtoken'&&!isset($_SERVER['HTTP_AUTHTOKEN']))||$key!='authtoken'){
+							$this->requestVars[$key]=$val;
+						}
 					break;
 				}
 			}
@@ -62,14 +66,17 @@ class api
 			case 'loginUser':
 				$retval=$this->datastore->loginUser($this->furl_id,$this->requestVars['password']);
 			break;
+			case 'logoutUser':
+				$retval=$this->datastore->logoutUser($this->requestVars['authtoken'],$this->furl_id);
+			break;
 			case 'addUser':
-				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password']);
+				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password'],$this->requestVars['mi'],$this->requestVars['weight'],$this->requestVars['height'],$this->requestVars['birth_date'],$this->requestVars['gender'],$this->requestVars['waist_size'],$this->requestVars['address1'],$this->requestVars['address2'],$this->requestVars['city'],$this->requestVars['state'],$this->requestVars['zip']);
 			break;
 			case 'getUser':
 				$retval=$this->datastore->getUser($this->furl_id,$this->requestVars['authtoken']);
 			break;
 			case 'addWorkout':
-				$retval=$this->datastore->addWorkout($this->requestVars['authtoken'],$this->requestVars['workout_type'],$this->requestVars['distance'],$this->requestVars['workout_time'],$this->requestVars['calories']);
+				$retval=$this->datastore->addWorkout($this->requestVars['authtoken'],$this->requestVars['workout_type'],$this->requestVars['distance'],$this->requestVars['duration'],$this->requestVars['pace'],$this->requestVars['workout_timestamp'],$this->requestVars['calories']);
 			break;
 			case 'getAllWorkout':
 				$retval=$this->datastore->getAllWorkout($this->requestVars['authtoken']);
@@ -85,6 +92,10 @@ class api
 	}
 }
 
+if(strtoupper($_SERVER['REQUEST_METHOD'])=='OPTIONS'){
+	//Header('200 OK');
+	exit;
+}
 try{
 	$api=new api();
 	$results=$api->processRequest();

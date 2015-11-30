@@ -9,6 +9,137 @@
 		</style>
 	</head>
 	<table>
+		<tr><td colspan="2" class="functionName">addUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/addUser/:email?password=:password&fname=:fname&lname=:lname&mi=:mi&weight=:weight&height=:height&birth_date=:birth_date&gender=:gender&waist_size=:waist_size&address1=:address1&address2=:address2&city=:city&state=:state&zip=:zip</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				address1=[string(255)]<br>
+				address2=[string(255)]<br>
+				birth_date=[UTC formatted date]<br>
+				city=[string(75)]<br>
+				fname=[string(50)]<br>
+				gender=[string(1)]<br>
+				height=[int] <i>inches</i><br>
+				lname=[string(50)]<br>
+				mi=[string(1)]<br>
+				password=[string]<br>
+				state=[string(2)]<br>
+				waist_size=[int] <i>inches</i><br>
+				weight=[int] <i>pounds</i><br>
+				zip=[string(10)]
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: {"results":"User successfully created"}</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 400: You must provide the First Name<br>
+				Code 400: You must provide the Last Name<br>
+				Code 400: You must provide the E-Mail Address<br>
+				Code 400: You must provide the Password<br>
+				Code 400: You must provide the Middle Name Initial<br>
+				Code 400: You must provide the Weight<br>
+				Code 400: You must provide the Height<br>
+				Code 400: You must provide the Birth Date<br>
+				Code 400: You must provide the Gender<br>
+				Code 400: You must provide the Waist Size<br>
+				Code 400: You must provide Address Line #1<br>
+				Code 400: You must provide the City<br>
+				Code 400: You must provide the State<br>
+				Code 400: You must provide the Zip Code<br>
+				Code 400: Invalid Height<br>
+				Code 400: Invalid Weight<br>
+				Code 400: Invalid Waist Line<br>
+				Code 409: This email address already exists<br>
+				Code 505: Unable to create user<br>
+			</td>
+		</tr>
+	</table>
+
+	<table>
+		<tr><td colspan="2" class="functionName">addWorkout</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/addWorkout/:email?authtoken=:authotken&workout_type=:workout_type&distance=:distance&duration=:duration&calories=:claories&pace=:pace&workout_timestamp=:workout_timestamp</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				workout_type=[string(100)]<br>
+				distance=[float(6,2)] <i>miles</i><br>
+				duration=[int] <i>minutes</i><br>
+				calories=[int]<br>
+				pace=[float(5,2)] <i>miles per minute</i><br>
+				workout_timestamp=[UTC formatted date]<br>
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: JSON string containing workout_id</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 400: You must provide the Workout Type<br>
+				Code 400: You must provide the Workout Distance<br>
+				Code 400: You must provide the Workout Duration<br>
+				Code 400: You must provide the Workout Calories<br>
+				Code 400: You must provide the Workout Pace<br>
+				Code 400: You must provide the Workout Timestamp<br>
+				Code 400: Invalid Workout Distance<br>
+				Code 400: Invalid Workout Duration<br>
+				Code 400: Invalid Workout Calories<br>
+				Code 400: Invalid Workout Pace<br>
+				Code 505: Unable to create workout<br>
+			</td>
+		</tr>
+	</table>
+
+	<table>
+		<tr><td colspan="2" class="functionName">getUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/getUser/:email?authtoken=:authtoken</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				authtoken=[string]
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: A JSON string containing the User data</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 500: You cannot retrieve this user<br>
+				Code 505: Unable to retrieve user
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</td>
+			<td>At this point in time you can only retrieve yourself</td>
+		</tr>
+	</table>
+	<table>
 		<tr><td colspan="2" class="functionName">loginUser</td></tr>
 		<tr>
 			<td class="b">URL</td>
@@ -35,10 +166,10 @@
 		</tr>
 	</table>
 	<table>
-		<tr><td colspan="2" class="functionName">addUser</td></tr>
+		<tr><td colspan="2" class="functionName">logoutUser</td></tr>
 		<tr>
 			<td class="b">URL</td>
-			<td>/addUser/:email?password=:password&fname=:fname&?lname=:lname</td>
+			<td>/logoutUser/:email?authtoken=:authtoken</td>
 		</tr>
 		<tr>
 			<td class="b">Method</td>
@@ -46,55 +177,17 @@
 		</tr>
 		<tr>
 			<td class="b">URL Params</td>
-			<td>
-				password=[string]<br>
-				fname=[string]<br>
-				lname=[string]
-			</td>
+			<td>authtoken=[string]</td>
 		</tr>
 		<tr>
 			<td class="b">Success</td>
-			<td>Code:200<br>Content: {"results":"User successfully created"}</td>
+			<td>Code:200<br>Content: {"results":"Logout Complete"}</td>
 		</tr>
 		<tr>
 			<td class="b">Failure</td>
-			<td>Code 400: You must provide the First Name<br>
-				Code 400: You must provide the Last Name<br>
-				Code 400: You must provide the E-Mail Address<br>
-				Code 400: You must provide the Password<br>
-				Code 409: This email address already exists<br>
-				Code 505: Unable to create user<br>
+			<td>Code 500: You cannot logout this user<br>
+				Code 505: Unable to logout user
 			</td>
 		</tr>
-	</table>
-	<table>
-		<tr><td colspan="2" class="functionName">getUser</td></tr>
-		<tr>
-			<td class="b">URL</td>
-			<td>/getUser/:email?authtoken=:authtoken</td>
-		</tr>
-		<tr>
-			<td class="b">Method</td>
-			<td>GET or POST</td>
-		</tr>
-		<tr>
-			<td class="b">URL Params</td>
-			<td>
-				authtoken=[string]
-			</td>
-		</tr>
-		<tr>
-			<td class="b">Success</td>
-			<td>Code:200<br>Content: {"fname":"XXXX","lname":"YYYY","email":"ZZZZ"}</td>
-		</tr>
-		<tr>
-			<td class="b">Failure</td>
-			<td>Code 500: You cannot retrieve this user<br>
-				Code 505: Unable to retrieve user
-			</td>
-		</tr>
-		<tr>
-			<td class="b">Notes</td>
-			<td>At this point in time you can only retrieve yourself</tr>
 	</table>
 </html>
