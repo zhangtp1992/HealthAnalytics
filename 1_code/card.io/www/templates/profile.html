@@ -31,12 +31,13 @@
           <input type="number" placeholder="(inches)" ng-readonly="!editing" ng-model="currentUser.height">
         </label>
         <label class="item item-input">
+          <span class="input-label">Waist <span class="assertive">*</span></span>
+          <input type="number" placeholder="(inches)" ng-readonly="!editing" ng-model="currentUser.waist_size" required>
+        </label>
+        <label class="item item-input">
           <span class="input-label">Weight</span>
           <input type="number" placeholder="(lbs)" ng-readonly="!editing" ng-model="currentUser.weight">
         </label>
-        <div class="item item-divider">
-          Gender
-        </div>
         <!--
         <label class="item item-text-wrap item-radio">
           <input type="radio" name="gender" value="male" ng-disabled="!editing" ng-model="currentUser.gender">
@@ -53,8 +54,46 @@
           <i class="radio-icon ion-checkmark"></i>
         </label>
         -->
+      </div>
+
+      <div class="list list-inset">
+        <div class="item item-divider">
+          Gender <span class="assertive">*</span>
+        </div>
         <ion-radio-fix ng-disabled="!editing" ng-repeat="item in genderList" ng-value="item.value" ng-model="currentUser.gender">{{item.text}}</ion-radio-fix>
       </div>
+
+      <div class="list list-inset">
+        <div class="item item-divider">
+          Address
+        </div>
+        <label class="item item-input">
+          <span class="input-label">Street <span class="assertive">*</span></span>
+          <input type="text" placeholder="1 Awesome Way" ng-readonly="!editing" ng-model="currentUser.address1" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Street 2</span>
+          <input type="text" placeholder="(Optional)" ng-readonly="!editing" ng-model="currentUser.address2">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">City <span class="assertive">*</span></span>
+          <input type="text" placeholder="New York" ng-readonly="!editing" ng-model="currentUser.city" required>
+        </label>
+        <label class="item item-input item-select">
+          <div class="input-label">
+            State <span class="assertive">*</span>
+          </div>
+          <select ng-model="currentUser.state" ng-disabled="!editing">
+            <option value="">Select a State</option>
+            <option ng-selected='{{item.value == currentUser.state}}' ng-repeat="item in stateList" value="{{item.value}}">{{item.text}}</option>
+          </select>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">ZipCode <span class="assertive">*</span></span>
+          <input type="text" placeholder="0000-12345" ng-readonly="!editing" ng-model="currentUser.zip" required>
+        </label>
+      </div>
+
     </form>
   </ion-content>
 </ion-view>

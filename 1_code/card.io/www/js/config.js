@@ -8,6 +8,7 @@ angular.module('starter.config', [])
   /* All apis should end in a slash '/' */
   'getUserApi': 'getUser/',
   'loginUserApi': 'loginUser/',
+  'logoutUserApi': 'logoutUser/',
   'addUserApi': 'addUser/',
   'updateUserApi': 'updateUser/',
   'deleteUserApi': 'deleteUser/',

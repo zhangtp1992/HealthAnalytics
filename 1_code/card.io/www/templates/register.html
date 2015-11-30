@@ -14,6 +14,10 @@
           <input type="text" placeholder="John" ng-model="registerData.fname" required>
         </label>
         <label class="item item-input">
+          <span class="input-label">Middle Initial <span class="assertive">*</span></span>
+          <input type="text" placeholder="S" ng-model="registerData.mi" required>
+        </label>
+        <label class="item item-input">
           <span class="input-label">Last Name <span class="assertive">*</span></span>
           <input type="text" placeholder="Shepard" ng-model="registerData.lname" required>
         </label>
@@ -89,12 +93,12 @@
           </div>
           <select ng-model="registerData.state" style="direction: ltr !important;">
             <option value="" selected>Select a State</option>
-            <option ng-repeat="item in stateList" ng-value="iten.value">{{item.text}}</option>
+            <option ng-repeat="item in stateList" value="{{item.value}}">{{item.text}}</option>
           </select>
         </label>
         <label class="item item-input">
           <span class="input-label">ZipCode <span class="assertive">*</span></span>
-          <input type="text" placeholder="12345" ng-model="registerData.zip" required>
+          <input type="text" placeholder="0000-12345" ng-model="registerData.zip" required>
         </label>
       </div>
 

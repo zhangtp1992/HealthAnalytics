@@ -144,6 +144,7 @@ angular.module('starter.services', ['starter.config'])
 .factory('AuthenticationService', function($http, $cookieStore, $rootScope, $timeout, UserService, AppConfig){
   var service = {};
   service.Login = Login;
+  service.Logout = Logout;
   service.SetCredentials = SetCredentials;
   service.ClearCredentials = ClearCredentials;
   service.IsLoggedIn = IsLoggedIn;
@@ -172,9 +173,17 @@ angular.module('starter.services', ['starter.config'])
       .then(function (resp) { // success
         var token = resp.data;
         if(token && token.authtoken){
-          SetCredentials(username, password, token.authtoken);
-          var response = { success: true, code: resp.status ,data: 'Ok' };
-          callback(response);
+          // we logged in, let's retrieve the user
+          SetCredentials(username, password, token.authtoken, undefined);
+          UserService.GetByUsername(username.toLowerCase())
+          .then(function(response) {
+            if(response.success) {
+              SetCredentials(username, password, token.authtoken, response.data);
+            } else {
+              Logout(); // logout because we couldn't retrieve the user...
+            }
+            callback(response); // send response, this covers both OK and BAD
+          });
         }
       }, function (resp){ // error
         var response = { success: false, code: resp.status, data: resp.statusText };
@@ -183,30 +192,23 @@ angular.module('starter.services', ['starter.config'])
     }
   }
 
-  function SetCredentials(username, password, token) {
+  function SetCredentials(username, password, token, user) {
     $rootScope.globals = {
       currentUser: {
         username: username,
         password: password,
-        authdata: token
+        authdata: token,
+        user: user
       }
     };
     // Setting the authentication token/credentials for all http requests
-    $http.defaults.headers.common['AuthToken'] = authdata;
-    $httpProvider.defaults.headers.get['AuthToken'] = authdata;
+    $http.defaults.headers.common['AuthToken'] = token;
     $cookieStore.put('globals', $rootScope.globals);
   }
 
-  function setCurrentUser(user){
-    if($rootScope.globals.currentUser){
-      $rootScope.globals.currentUser['user'] = user;
-      $cookieStore.put('globals', $rootScope.globals);
-    }
-  }
-
   function CurrentUser(){
-    if($rootScope.globals.currentUser && $rootScope.globals.currentUser.user){
-      return $rootScope.globals.currentUser.user;
+    if($rootScope.globals.currentUser){
+      return $rootScope.globals.currentUser;
     } else {
       return {};
     }
@@ -221,12 +223,26 @@ angular.module('starter.services', ['starter.config'])
     }
   }
 
+  function Logout() {
+    var user = CurrentUser();
+    if (user && user.username) {
+      $http.post(AppConfig.apiUrl + AppConfig.logoutUserApi + user.username)
+      .then(function (response) { // success
+        ClearCredentials(); // Success or fail, we will clear credentials anyway....
+      }, function (response) { // error
+        ClearCredentials(); // Success or fail, we will clear credentials anyway....
+      });
+    } else {
+      ClearCredentials(); // Success or fail, we will clear credentials anyway....
+    }
+    
+  }
+
   function ClearCredentials() {
     $rootScope.globals = {};
     $cookieStore.remove('globals');
     // Clearing the authentication token/credentials for all http requests
-    $http.defaults.headers.common['AuthToken'] = '';
-    $httpProvider.defaults.headers.get['AuthToken'] = '';
+    $http.defaults.headers.common['AuthToken'] = undefined;
   }
 })
 

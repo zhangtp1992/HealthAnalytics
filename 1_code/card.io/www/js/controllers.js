@@ -10,48 +10,9 @@ angular.module('starter.controllers', ['starter.services'])
   //$scope.$on('$ionicView.enter', function(e) {
   //});
   // Gravatar size
-  $scope.gSize = 200;
-
-  $scope.$watch( AuthenticationService.IsLoggedIn, function ( IsLoggedIn ) {
-    $scope.isLoggedIn = IsLoggedIn;
-    $scope.currentUser = AuthenticationService.CurrentUser();
-    if($scope.currentUser && $scope.currentUser.birth_date) {
-      $scope.currentUser.birth_date = new Date($scope.currentUser.birth_date);// theDate.year(), theDate.month(), theDate.date()
-    }
-  });
-
-  $scope.isUserLogged = function(){
-    var user = $rootScope.globals.currentUser;
-    console.log(user);
-    if(user){
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  $scope.doLogOut = function() {
-    AuthenticationService.ClearCredentials();
-    $ionicHistory.nextViewOptions({disableBack: true});
-    $location.path('app/login');
-  }
-
-  $scope.user = function() { 
-    if($scope.isUserLogged && AuthenticationService.CurrentUser()) {
-      return $rootScope.globals.currentUser.user;
-    } else if ($scope.isUserLogged) {
-      // get user and add it to the scope
-      //AuthenticationService.setCurrentUser();
-      // then return it
-      return {};
-    } else {
-      return {};
-    }
-  }
   
-  $scope.gravatarUrl = function() {
-    return 'http://www.gravatar.com/avatar/' + md5.createHash($scope.currentUser.email.toLowerCase()) + '?s=' + $scope.gSize;
-  }
+  // Variables and static data needed 
+  $scope.gSize = 200;
 
   $scope.genderList = [
     {text: 'Male', value: 'm'},
@@ -85,6 +46,29 @@ angular.module('starter.controllers', ['starter.services'])
     { value: 'WA', text: 'Washington' }, { value: 'WV', text: 'West Virginia' },
     { value: 'WI', text: 'Wisconsin' }, { value: 'WY', text: 'Wyoming' }
   ]
+
+
+  // Watch for the set current user and update the birthdate.
+  $scope.$watch( $scope.isUserLogged , function ( isUserLogged ) {
+    $scope.currentUser = AuthenticationService.CurrentUser().user;
+    if($scope.currentUser && $scope.currentUser.birth_date) {
+      $scope.currentUser.birth_date = new Date($scope.currentUser.birth_date);// theDate.year(), theDate.month(), theDate.date()
+    }
+  });
+
+  $scope.isUserLogged = function(){
+    return AuthenticationService.IsLoggedIn();
+  }
+
+  $scope.doLogOut = function() {
+    AuthenticationService.Logout();
+    $ionicHistory.nextViewOptions({disableBack: true});
+    $location.path('app/login');
+  }
+  
+  $scope.gravatarUrl = function() {
+    return 'http://www.gravatar.com/avatar/' + md5.createHash($scope.currentUser.email.toLowerCase()) + '?s=' + $scope.gSize;
+  }
 
   /*
   $scope.getName = function () {
@@ -153,22 +137,11 @@ angular.module('starter.controllers', ['starter.services'])
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
     console.log('Doing login', $scope.loginData);
-    AuthenticationService.Login($scope.loginData.email, $scope.loginData.password, function (response) {
+    AuthenticationService.Login($scope.loginData.email, $scope.loginData.password, 
+    function (response) {
       if (response.success) {
-        UserService.GetByUsername($scope.loginData.email)
-        .then(function (user){ //success
-          if (user) {
-            AuthenticationService.setCurrentUser(user);
-            $ionicHistory.nextViewOptions({disableBack: true});
-            $location.path('app/home');
-          }
-        }, function (error){ // error
-          // An alert dialog
-          $ionicPopup.alert({
-            title: 'Login Failed.',
-            template: 'Something bad happened: ' + error.statusText
-          });
-        });
+        $ionicHistory.nextViewOptions({disableBack: true});
+        $location.path('app/home');
       } else {
         FlashService.Error(response.data);
         // An alert dialog
