@@ -113,6 +113,9 @@ class api
 	}
 }
 
+#respond with only a "200 OK" response if the request method is "OPTIONS". The client will immediately follow up with a POST/GET/PUT/DELETE request.
+#OPTIONS is used to check if the server allows for cross site scripting (Since this API communicates with clients on different servers, this must
+#be enabled
 if(strtoupper($_SERVER['REQUEST_METHOD'])=='OPTIONS'){exit;}
 try{
 	$api=new api();
