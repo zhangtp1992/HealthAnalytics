@@ -22,10 +22,10 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	}
 
 	public static function tearDownAfterClass(){
-		self::$ds->db->query('DELETE FROM people WHERE email="'.self::$email.'"');
-		self::$ds->db->query('DELETE FROM session WHERE authtoken="'.self::$authtoken.'"');
 		self::$ds->db->query('DELETE FROM workout WHERE workout_id="'.self::$workout_id.'"');
 		self::$ds->db->query('DELETE FROM food WHERE userfood_id="'.self::$userfood_id.'"');
+		self::$ds->db->query('DELETE FROM session WHERE authtoken="'.self::$authtoken.'"');
+		self::$ds->db->query('DELETE FROM people WHERE email="'.self::$email.'"');
 		self::$ds=NULL;
 	}
 
@@ -221,7 +221,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	}
 
 	public function test_addWorkout(){
-		$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,0.5,'2015-11-05T13:12:43.511Z',200.00);
+		$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,'2015-11-05T13:12:43.511Z',200.00);
 		$newWorkout=json_decode($x,TRUE);
 		self::$workout_id=$newWorkout['workout_id'];
 		$this->assertRegExp('/{"workout_id":"/', $x);
@@ -233,7 +233,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
      */
 
     public function test_addWorkoutMissingWorkoutTypeException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'',1.00,120.0,0.5,'2015-11-05T13:12:43.511Z',200.00);
+    	$x=self::$ds->addWorkout(self::$authtoken,'',1.00,120.0,'2015-11-05T13:12:43.511Z',200.00);
     }
 
     /**
@@ -242,7 +242,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
      */
 
     public function test_addWorkoutMissingWorkoutDistanceException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run','',120.0,0.5,'2015-11-05T13:12:43.511Z',200.00);
+    	$x=self::$ds->addWorkout(self::$authtoken,'run','',120.0,'2015-11-05T13:12:43.511Z',200.00);
     }
 
     /**
@@ -250,15 +250,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage You must provide the Workout Duration
      */
     public function test_addWorkoutMissingWorkoutDurationException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,'',0.5,'2015-11-05T13:12:43.511Z',200.00);
-    }
-
-    /**
-     * @expectedException DatastoreException
-	 * @expectedExceptionMessage You must provide the Workout Pace
-     */
-    public function test_addWorkoutMissingWorkoutPaceException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,'','2015-11-05T13:12:43.511Z',200.00);
+    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,'','2015-11-05T13:12:43.511Z',200.00);
     }
 
     /**
@@ -266,7 +258,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage You must provide the Workout Timestamp
      */
     public function test_addWorkoutMissingWorkoutTimestampException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,0.5,'',200.00);
+    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,'',200.00);
     }
 
     /**
@@ -274,7 +266,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage You must provide the Workout Calories
      */
     public function test_addWorkoutMissingWorkoutCaloriesException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,0.5,'2015-11-05T13:12:43.511Z','');
+    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,'2015-11-05T13:12:43.511Z','');
     }
 
     /**
@@ -282,7 +274,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage Invalid Workout Distance
      */
     public function test_addWorkoutInvalidWorkoutDistanceException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run','1.00x',120.0,0.5,'2015-11-05T13:12:43.511Z',200.00);
+    	$x=self::$ds->addWorkout(self::$authtoken,'run','1.00x',120.0,'2015-11-05T13:12:43.511Z',200.00);
     }
 
     /**
@@ -290,7 +282,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage Invalid Workout Duration
      */
     public function test_addWorkoutInvalidWorkoutDurationException(){
-    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,'120.0ddd',0.5,'2015-11-05T13:12:43.511Z',200.00);
+    	$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,'120.0ddd','2015-11-05T13:12:43.511Z',200.00);
     }
 
     /**
@@ -298,7 +290,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage Invalid Workout Calories
      */
     public function test_addWorkoutInvalidWorkoutCaloriesException(){
-		$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,0.5,'2015-11-05T13:12:43.511Z','20.dfer');
+		$x=self::$ds->addWorkout(self::$authtoken,'run',1.00,120.0,'2015-11-05T13:12:43.511Z','20.dfer');
     }
 
 	public function test_getWorkout(){
@@ -341,7 +333,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	}
 
 	public function test_addFood(){
-		$x=self::$ds->addFood(self::$authtoken,2,2.5,'breakfast','2015-11-23T14:34:43.954Z');
+		$x=self::$ds->addFood(self::$authtoken,2,2.5,'breakfast','2015-11-23T14:34:43.954Z','Here are my comments');
 		$newFood=json_decode($x,TRUE);
 		self::$userfood_id=$newFood['userfood_id'];
 		$this->assertRegExp('/{"userfood_id":"/', $x);
@@ -352,7 +344,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage You must provide the Food
      */
 	public function test_addFoodMissingFood(){
-		$x=self::$ds->addFood(self::$authtoken,'',2.5,'breakfast','2015-11-23T14:34:43.954Z');
+		$x=self::$ds->addFood(self::$authtoken,'',2.5,'breakfast','2015-11-23T14:34:43.954Z','Here are my comments');
 	}
 
     /**
@@ -360,7 +352,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage You must provide the Serving
      */
 	public function test_addFoodMissingServing(){
-		$x=self::$ds->addFood(self::$authtoken,2,'','breakfast','2015-11-23T14:34:43.954Z');
+		$x=self::$ds->addFood(self::$authtoken,2,'','breakfast','2015-11-23T14:34:43.954Z','Here are my comments');
 	}
 
     /**
@@ -368,7 +360,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage You must provide the Meal
      */
 	public function test_addFoodMissingMeal(){
-		$x=self::$ds->addFood(self::$authtoken,2,2.5,'','2015-11-23T14:34:43.954Z');
+		$x=self::$ds->addFood(self::$authtoken,2,2.5,'','2015-11-23T14:34:43.954Z','Here are my comments');
 	}
 
     /**
@@ -376,7 +368,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage You must provide the Food Timestamp
      */
 	public function test_addFoodMissingFoodTimestamp(){
-		$x=self::$ds->addFood(self::$authtoken,2,2.5,'breakfast','');
+		$x=self::$ds->addFood(self::$authtoken,2,2.5,'breakfast','','Here are my comments');
 	}
 
     /**
@@ -384,7 +376,7 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage Invalid Serving
      */
 	public function test_addFoodInvalidServing(){
-		$x=self::$ds->addFood(self::$authtoken,2,'2.5x','breakfast','2015-11-23T14:34:43.954Z');
+		$x=self::$ds->addFood(self::$authtoken,2,'2.5x','breakfast','2015-11-23T14:34:43.954Z','Here are my comments');
 	}
 
     /**
@@ -392,6 +384,6 @@ class DatastoreTest extends PHPUnit_Framework_TestCase
 	 * @expectedExceptionMessage This food does not exist
      */
 	public function test_addFoodFoodDoesNotExist(){
-		$x=self::$ds->addFood(self::$authtoken,9000,2.5,'breakfast','2015-11-23T14:34:43.954Z');
+		$x=self::$ds->addFood(self::$authtoken,9000,2.5,'breakfast','2015-11-23T14:34:43.954Z','Here are my comments');
 	}
 }

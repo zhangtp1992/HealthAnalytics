@@ -52,19 +52,29 @@ class datastore
 		catch(PDOException $e){throw new DatastoreException('ERROR, unable to authenication user',2);}
 	}
 
+	#There is a bug with PHP PDO which causes non-strings to be cast as strings when pulled from the database
 	private function __typecast($table,$record){
-		$flds=[
-			'workout'=>['workout_id','calories','distance','duration','pace'],
+		$flds_int=[
+			'workout'=>['workout_id','calories','duration'],
 			'user'=>['waist_size','height','weight'],
-			'food'=>['food_id','calories','serving_size_normalized','total_calories','total_mass']
+			'food'=>['food_id','calories','serving_size_normalized']
 		];
-		foreach($flds[$table] as $key=>$val){
+		foreach($flds_int[$table] as $key=>$val){
 			if(isset($record[$val])){$record[$val]=(int)$record[$val];}
 		}
+		$flds_float=[
+			'workout'=>['distance','pace'],
+			'user'=>[],
+			'food'=>['serving','total_calories','total_mass']
+		];
+		foreach($flds_float[$table] as $key=>$val){
+			if(isset($record[$val])){$record[$val]=(float)$record[$val];}
+		}
+
 		return $record;
 	}
 
-	public function addFood($authtoken,$food,$serving,$meal,$food_timestamp){
+	public function addFood($authtoken,$food,$serving,$meal,$food_timestamp,$comments){
 		$this->__authenticateUser($authtoken);
 		if(empty($food)){throw new DatastoreException('You must provide the Food',5);}
 		if(empty($serving)){throw new DatastoreException('You must provide the Serving',5);}
@@ -72,8 +82,8 @@ class datastore
 		if(empty($food_timestamp)){throw new DatastoreException('You must provide the Food Timestamp',5);}
 		if(!is_numeric($serving)){throw new DatastoreException('Invalid Serving',5);}
 		try{
-			$pstmt=$this->db->prepare('INSERT INTO food (food,serving,meal,food_timestamp,person) VALUES(?,?,?,?,?)');
-			$pstmt->execute([$food,$serving,$meal,$food_timestamp,$this->authenticatedUser['pkey']]);
+			$pstmt=$this->db->prepare('INSERT INTO food (food,serving,meal,food_timestamp,comments,person) VALUES(?,?,?,?,?,?)');
+			$pstmt->execute([$food,$serving,$meal,$food_timestamp,$comments,$this->authenticatedUser['pkey']]);
 			return(json_encode(['userfood_id'=>$this->db->lastInsertId()]));
 		}
 		catch(PDOException $e){
@@ -124,21 +134,19 @@ class datastore
 		}
 	}
 
-	function addWorkout($authtoken,$workout_type,$distance,$duration,$pace,$workout_timestamp,$calories){
+	function addWorkout($authtoken,$workout_type,$distance,$duration,$workout_timestamp,$calories){
 		$this->__authenticateUser($authtoken);
 		if(empty($workout_type)){throw new DatastoreException('You must provide the Workout Type',5);}
 		if(empty($distance)){throw new DatastoreException('You must provide the Workout Distance',5);}
 		if(empty($duration)){throw new DatastoreException('You must provide the Workout Duration',5);}
 		if(empty($calories)){throw new DatastoreException('You must provide the Workout Calories',5);}
-		if(empty($pace)){throw new DatastoreException('You must provide the Workout Pace',5);}
 		if(empty($workout_timestamp)){throw new DatastoreException('You must provide the Workout Timestamp',5);}
 		if(!is_numeric($distance)){throw new DatastoreException('Invalid Workout Distance',5);}
 		if(!is_numeric($duration)){throw new DatastoreException('Invalid Workout Duration',5);}
 		if(!is_numeric($calories)){throw new DatastoreException('Invalid Workout Calories',5);}
-		if(!is_numeric($pace)){throw new DatastoreException('Invalid Workout Pace',5);}
 		try{
-			$pstmt=$this->db->prepare('INSERT INTO workout (workout_type,distance,duration,calories,pace,workout_timestamp,person) VALUES (?,?,?,?,?,?,?)');
-			$pstmt->execute([$workout_type,$distance,$duration,$calories,$pace,$workout_timestamp,$this->authenticatedUser['pkey']]);
+			$pstmt=$this->db->prepare('INSERT INTO workout (workout_type,distance,duration,calories,workout_timestamp,person) VALUES (?,?,?,?,?,?)');
+			$pstmt->execute([$workout_type,$distance,$duration,$calories,$workout_timestamp,$this->authenticatedUser['pkey']]);
 			return(json_encode(['workout_id'=>$this->db->lastInsertId()]));
 		}
 		catch(PDOException $e){throw new DatastoreException('Unable to save workout',1);}
@@ -247,7 +255,7 @@ class datastore
 		$this->__authenticateUser($authtoken);
 		try{
 			$valid=FALSE;
-			$pstmt=$this->db->prepare('SELECT workout.workout_id,workout_type,distance,duration,calories,pace,workout_timestamp,email FROM workout INNER JOIN people ON people.pkey=workout.`person` WHERE workout.workout_id=?');
+			$pstmt=$this->db->prepare('SELECT * FROM getWorkoutView WHERE workout_id=?');
 			$pstmt->execute([$workout_id]);
 			if($pstmt->rowCount()>0){
 				$rs=$pstmt->fetch(PDO::FETCH_ASSOC);
@@ -266,7 +274,7 @@ class datastore
 		if($this->authenticatedUser['role']!='admin'){throw new DatastoreException('You do not have the rights to perform this action',3);}
 		try{
 			$workout=[];
-			$stmt=$this->db->query('SELECT workout.workout_id,email,workout_type,distance,duration,calories,pace,workout_timestamp FROM workout INNER JOIN people ON people.pkey=workout.`person`');
+			$stmt=$this->db->query('SELECT * FROM getWorkoutView');
 			if($stmt->rowCount()>0){
 				while($rs=$stmt->fetch(PDO::FETCH_ASSOC)){
 					$workout[]=$this->__typecast('workout',$rs);
@@ -283,7 +291,7 @@ class datastore
 			$valid=FALSE;
 			if($email==$this->authenticatedUser['email']){
 				$valid=TRUE;
-				$pstmt=$this->db->prepare('SELECT workout.workout_id,workout_type,distance,duration,calories,pace,workout_timestamp,email FROM workout INNER JOIN people ON people.pkey=workout.`person` WHERE people.email=?');
+				$pstmt=$this->db->prepare('SELECT * FROM getWorkoutView WHERE email=?');
 				$pstmt->execute([$email]);
 				if($pstmt->rowCount()>0){
 					while($rs=$pstmt->fetch(PDO::FETCH_ASSOC)){

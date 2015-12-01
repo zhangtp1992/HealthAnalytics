@@ -38,7 +38,7 @@
 		<tr><td colspan="2" class="functionName">addFood</td></tr>
 		<tr>
 			<td class="b">URL</td>
-			<td>/addFood/?authtoken=:authtoken&food=:food&serving=:serving&meal=:meal&food_timestamp=:food_timestamp</td>
+			<td>/addFood/?authtoken=:authtoken&food=:food&serving=:serving&meal=:meal&food_timestamp=:food_timestamp&comments=:comments</td>
 		</tr>
 		<tr>
 			<td class="b">Method</td>
@@ -51,6 +51,7 @@
 				serving=[float(4,2)]<br>
 				meal=[string(25)]<br>
 				food_timestampe=[UTC formatted date]<br>
+				comments=[string(255)] <i>optional</i>
 			</td>
 		</tr>
 		<tr>
@@ -84,7 +85,7 @@
 			<td class="b">URL Params</td>
 			<td>
 				address1=[string(255)]<br>
-				address2=[string(255)]<br>
+				address2=[string(255)] <i>optional</i><br>
 				birth_date=[UTC formatted date]<br>
 				city=[string(75)]<br>
 				fname=[string(50)]<br>
@@ -132,7 +133,7 @@
 		<tr><td colspan="2" class="functionName">addWorkout</td></tr>
 		<tr>
 			<td class="b">URL</td>
-			<td>/addWorkout/:email?authtoken=:authotken&workout_type=:workout_type&distance=:distance&duration=:duration&calories=:claories&pace=:pace&workout_timestamp=:workout_timestamp</td>
+			<td>/addWorkout/:email?authtoken=:authotken&workout_type=:workout_type&distance=:distance&duration=:duration&calories=:claories&workout_timestamp=:workout_timestamp</td>
 		</tr>
 		<tr>
 			<td class="b">Method</td>
@@ -145,7 +146,6 @@
 				distance=[float(6,2)] <i>miles</i><br>
 				duration=[int] <i>minutes</i><br>
 				calories=[int]<br>
-				pace=[float(5,2)] <i>miles per minute</i><br>
 				workout_timestamp=[UTC formatted date]<br>
 				authtoken=[string(32)]
 			</td>
@@ -160,7 +160,6 @@
 				Code 400: You must provide the Workout Distance<br>
 				Code 400: You must provide the Workout Duration<br>
 				Code 400: You must provide the Workout Calories<br>
-				Code 400: You must provide the Workout Pace<br>
 				Code 400: You must provide the Workout Timestamp<br>
 				Code 400: Invalid Workout Distance<br>
 				Code 400: Invalid Workout Duration<br>

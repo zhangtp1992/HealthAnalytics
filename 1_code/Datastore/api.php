@@ -67,10 +67,10 @@ class api
 				$retval=$this->datastore->addUser($this->requestVars['fname'],$this->requestVars['lname'],$this->furl_id,$this->requestVars['password'],$this->requestVars['mi'],$this->requestVars['weight'],$this->requestVars['height'],$this->requestVars['birth_date'],$this->requestVars['gender'],$this->requestVars['waist_size'],$this->requestVars['address1'],$this->requestVars['address2'],$this->requestVars['city'],$this->requestVars['state'],$this->requestVars['zip']);
 			break;
 			case 'addWorkout':
-				$retval=$this->datastore->addWorkout($this->requestVars['authtoken'],$this->requestVars['workout_type'],$this->requestVars['distance'],$this->requestVars['duration'],$this->requestVars['pace'],$this->requestVars['workout_timestamp'],$this->requestVars['calories']);
+				$retval=$this->datastore->addWorkout($this->requestVars['authtoken'],$this->requestVars['workout_type'],$this->requestVars['distance'],$this->requestVars['duration'],$this->requestVars['workout_timestamp'],$this->requestVars['calories']);
 			break;
 			case 'addFood':
-				$retval=$this->datastore->addFood($this->requestVars['authtoken'],$this->requestVars['food'],$this->requestVars['serving'],$this->requestVars['meal'],$this->requestVars['food_timestamp']);
+				$retval=$this->datastore->addFood($this->requestVars['authtoken'],$this->requestVars['food'],$this->requestVars['serving'],$this->requestVars['meal'],$this->requestVars['food_timestamp'],$this->requestVars['comments']);
 			break;
 			case 'getFood':
 				$retval=$this->datastore->getFood($this->requestVars['authtoken'],$this->furl_id);
