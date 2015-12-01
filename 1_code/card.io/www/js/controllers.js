@@ -47,15 +47,6 @@ angular.module('starter.controllers', ['starter.services'])
     { value: 'WI', text: 'Wisconsin' }, { value: 'WY', text: 'Wyoming' }
   ]
 
-
-  // Watch for the set current user and update the birthdate.
-  $scope.$watch( $scope.isUserLogged , function ( isUserLogged ) {
-    $scope.currentUser = AuthenticationService.CurrentUser().user;
-    if($scope.currentUser && $scope.currentUser.birth_date) {
-      $scope.currentUser.birth_date = new Date($scope.currentUser.birth_date);// theDate.year(), theDate.month(), theDate.date()
-    }
-  });
-
   $scope.isUserLogged = function(){
     return AuthenticationService.IsLoggedIn();
   }
@@ -69,6 +60,25 @@ angular.module('starter.controllers', ['starter.services'])
   $scope.gravatarUrl = function() {
     return 'http://www.gravatar.com/avatar/' + md5.createHash($scope.currentUser.email.toLowerCase()) + '?s=' + $scope.gSize;
   }
+
+  // Watch for the set current user and update the birthdate.
+  $scope.$watch( $scope.isUserLogged , function ( isUserLogged ) {
+    if(isUserLogged) { // If loggedin == true get the user from the user-service
+      UserService.GetByUsername(AuthenticationService.CurrentUser().username).then(function (response){
+        if(response.success) { // if user service response == true set the user variable
+          $scope.currentUser = response.data;
+          if($scope.currentUser && $scope.currentUser.birth_date) {
+            $scope.currentUser.birth_date = new Date($scope.currentUser.birth_date);// theDate.year(), theDate.month(), theDate.date()
+          }
+        } else { // else service response == false clear the user variable
+          $scope.currentUser = {};
+        }
+      });
+    } else { // else loggedin == false clear the user variable
+      $scope.currentUser = {};
+    }
+    
+  });
 
   /*
   $scope.getName = function () {
@@ -266,8 +276,6 @@ angular.module('starter.controllers', ['starter.services'])
 
   $scope.formatDate = function(date) {
     if(date) {
-      console.log(date);
-      console.log(moment(date).format('LL'));
       return moment(date).format('LL');
     }
   }
@@ -338,7 +346,6 @@ angular.module('starter.controllers', ['starter.services'])
 
   $scope.formatDate = function(date) {
     if(date) {
-      console.log(date);
       return moment(date).format('ll');
     }
   }

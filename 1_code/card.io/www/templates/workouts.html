@@ -1,6 +1,12 @@
 <ion-view view-title="Workout History">
   <ion-content>
-    <p ng-show="!workoutList.length">You have not entered any workout items.</p>
+
+    <ion-list type="card" ng-show="!workoutList.length">
+      <ion-item ng-show="!workoutList.length">
+        <p ng-show="!workoutList.length">You have not entered any workout items.</p>
+      </ion-item>
+    </ion-list>
+
     <ion-list type="card" ng-repeat="item in workoutList">
       <ion-item class="item-icon-left">
         <i class="icon {{getWorkoutIcon(item.workout_type)}}"></i>

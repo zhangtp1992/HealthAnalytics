@@ -1,6 +1,12 @@
 <ion-view view-title="Food History">
   <ion-content>
-    <p ng-show="!foodList.length">You have not entered any food items.</p>
+  
+    <ion-list type="card" ng-show="!foodList.length">
+      <ion-item ng-show="!foodList.length">
+        <p ng-show="!foodList.length">You have not entered any food items.</p>
+      </ion-item>
+    </ion-list>
+
     <ion-list ng-repeat="item in foodList">
       <ion-item class="item-icon-left">
         <i class="icon {{getFoodIcon(item.food_name)}}"></i>
