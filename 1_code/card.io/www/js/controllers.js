@@ -254,35 +254,36 @@ angular.module('starter.controllers', ['starter.services'])
   ];
 })
 
-.controller('WorkoutsCtrl', function($scope, $stateParams) {
-  $scope.workoutList = [
-    {id: '1', name: "Nice walk in Johnson Park", type: 'walk', icon:'ion-android-walk', date: new Date("2015", "10", "02"), distance: 1.1, duration: 1260.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'},
-    {id: '2', name: "Nice run in Johnson Park", type: 'run', icon:'ion-ribbon-a', date: new Date("2015", "09", "25"), distance: 1.1, duration: 660.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'},
-    {id: '3', name: "Nice bike in Johnson Park", type: 'bike', icon:'ion-android-bicycle', date: new Date("2015", "09", "05"), distance: 1.1, duration: 420.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'}
-  ];
+.controller('WorkoutsCtrl', function($scope, $stateParams, AuthenticationService, WorkoutService) {
+  $scope.username = AuthenticationService.CurrentUser().username;
+  
+  WorkoutService.GetAll($scope.username).then(function (response){
+    if (response.success) {
+      $scope.workoutList = response.data;
+    }
+  });
+  
 
   $scope.formatDate = function(date) {
     if(date) {
-      
       console.log(date);
       console.log(moment(date).format('LL'));
       return moment(date).format('LL');
     }
   }
 
-  $scope.formatDuration = function(secs){
-    if(secs){
-      var hours = parseInt( secs / 3600 );
-      var minutes = parseInt( secs / 60 );
-      var seconds = secs % 60;
-      var result = (hours < 1 ? "" : hours + " :") + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
+  $scope.formatDuration = function(minutes){
+    if(minutes){
+      var hours = parseInt( minutes / 60 );
+      var minutes = parseInt( minutes % 60 );
+      var seconds = parseInt( (minutes % 60.0) / 60 );
+      var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
       return result;
     }
   }
 
-  $scope.formatPace = function(distance,secs){
-    if(distance  && secs && distance > 0 && secs > 0) {
-      var pace = parseFloat(secs/distance);
+  $scope.formatPace = function(pace){
+    if(pace && pace > 0) {
       var minutes = parseInt( pace / 60 );
       var seconds = parseInt(pace % 60);
       var result = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds) + " min/mi.";
@@ -290,14 +291,50 @@ angular.module('starter.controllers', ['starter.services'])
     }
   }
 
+  $scope.getWorkoutIcon = function(foodName) {
+    var foods = {
+      'walk': 'ion-android-walk',
+      'jog': 'ion-ribbon-a',
+      'bike': 'ion-android-bicycle'
+    };
+    var retIcon = foods[foodName.toLowerCase()];
+    return retIcon || 'ion-ribbon-a';
+  }
+
+  /*
+
+  [
+  {"workout_id":50,"workout_type":"jog","distance":2,"duration":65,"calories":250,"pace":1,"workout_timestamp":"2015-11-05T13:12:43.511Z","email":"ntaylor@aps.rutgers.edu"},
+  {"workout_id":51,"workout_type":"jog","distance":2,"duration":65,"calories":250,"pace":1,"workout_timestamp":"2015-11-05T13:12:43.511Z","email":"ntaylor@aps.rutgers.edu"},
+  {"workout_id":52,"workout_type":"jog","distance":2,"duration":65,"calories":250,"pace":1,"workout_timestamp":"2015-11-05T13:12:43.511Z","email":"ntaylor@aps.rutgers.edu"}
+  ]
+  
+  [
+    {id: '1', name: "Nice walk in Johnson Park", type: 'walk', icon:'ion-android-walk', date: new Date("2015", "10", "02"), distance: 1.1, duration: 1260.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'},
+    {id: '2', name: "Nice run in Johnson Park", type: 'run', icon:'ion-ribbon-a', date: new Date("2015", "09", "25"), distance: 1.1, duration: 660.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'},
+    {id: '3', name: "Nice bike in Johnson Park", type: 'bike', icon:'ion-android-bicycle', date: new Date("2015", "09", "05"), distance: 1.1, duration: 420.0, gmap: staticMap + '&path=40.511827,-74.462018|40.514736,-74.478021&center=Highpoint+Solutions+Stadium,Piscataway,NJ&zoom=14&size=540x304&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.511827,-74.462018&markers=color:red%7Clabel:C%7C40.514736,-74.478021'}
+  ];
+  */
+
 })
 
-.controller('FoodsCtrl', function($scope, $stateParams) {
-  $scope.foodList = [
-    {id: '1', type: 'lunch', food: 'pizza', icon:'ion-pizza', calories: 215, serving_label: 'Quick Snack', serving: '0.5', date: new Date("2015", "10", "02")},
-    {id: '2', type: 'breakfast', food: 'coffee', icon:'ion-coffee', calories: 130, serving_label: 'A Lot', serving: '3', date: new Date("2015", "10", "02")},
-    {id: '3', type: 'other', food: 'cake', icon:'ion-fork', calories: 600, serving_label: 'Normal', serving: '1', date: new Date("2015", "10", "02")}
-  ];
+.controller('FoodsCtrl', function($scope, $stateParams, AuthenticationService, FoodService) {
+  $scope.username = AuthenticationService.CurrentUser().username;
+  
+  // Get the list of foods from the server for display purposes.
+  FoodService.GetFoodList().then(function (response){
+    if(response.success) {
+      $scope.foods = response.data;
+    }
+  });
+
+  // Get user's list of foods
+  FoodService.GetAll($scope.username).then(function(response) {
+    if(response.success) {
+      $scope.foodList = response.data;
+    }
+  });
+
 
   $scope.formatDate = function(date) {
     if(date) {
@@ -306,12 +343,52 @@ angular.module('starter.controllers', ['starter.services'])
     }
   }
 
-  $scope.formatCalories = function(calories,servings) {
-    if(calories && servings && calories > 0 && servings >0) {
-      var calculatedCalories = parseFloat(servings) * parseFloat(calories);
+  $scope.formatCalories = function(calories) {
+    if(calories) {
+      var calculatedCalories = parseFloat(calories);
       var value = calculatedCalories.toFixed(2) + " calories";
       return value;
     }
   }
+
+  $scope.getFoodIcon = function(foodName) {
+    var foods = {
+      'cheese pizza': 'ion-pizza',
+      'coffee (milk and sugar)': 'ion-coffee',
+      'yellow cake with vanilla frosting': 'ion-fork'
+    };
+    var retIcon = foods[foodName.toLowerCase()];
+    return retIcon || 'ion-fork';
+  }
+
+
+  /*
+  [
+  {"food_id":1,"food_name":"Cheese Pizza","calories":272,"serving_size":"1 slice","serving_size_normalized":103},
+  {"food_id":2,"food_name":"Coffee (milk and sugar)","calories":41,"serving_size":"8 fl oz","serving_size_normalized":237},
+  {"food_id":3,"food_name":"Yellow Cake with Vanilla Frosting","calories":239,"serving_size":"1 slice(1\/8 of 18oz cake)","serving_size_normalized":64}
+  ]
+
+  {"userfood_id":"2",
+  "food":"1",
+  "serving":"2.50",
+  "meal":"breakfast",
+  "food_timestamp":"2015-11-23T14:34:43.954Z",
+  "email":"ntaylor@aps.rutgers.edu",
+  "food_name":"Cheese Pizza",
+  "calories_per_serving":"272",
+  "serving_size":"1 slice",
+  "serving_size_normalized":103,
+  "total_calories":680,
+  "total_mass":257}
+  */
+
+  /*
+  [
+    {id: '1', type: 'lunch', food: 'pizza', icon:'ion-pizza', calories: 215, serving_label: 'Quick Snack', serving: '0.5', date: new Date("2015", "10", "02")},
+    {id: '2', type: 'breakfast', food: 'coffee', icon:'ion-coffee', calories: 130, serving_label: 'A Lot', serving: '3', date: new Date("2015", "10", "02")},
+    {id: '3', type: 'other', food: 'cake', icon:'ion-fork', calories: 600, serving_label: 'Normal', serving: '1', date: new Date("2015", "10", "02")}
+  ];
+  */
 
 });

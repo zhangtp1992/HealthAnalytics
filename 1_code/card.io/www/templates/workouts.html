@@ -1,20 +1,21 @@
 <ion-view view-title="Workout History">
   <ion-content>
+    <p ng-show="!workoutList.length">You have not entered any workout items.</p>
     <ion-list type="card" ng-repeat="item in workoutList">
       <ion-item class="item-icon-left">
-        <i class="icon {{item.icon}}"></i>
-        <h2 class="first-letter">{{item.type}}</h2>
-        <p>{{formatDate(item.date)}}</p>
+        <i class="icon {{getWorkoutIcon(item.workout_type)}}"></i>
+        <h2 class="first-letter">{{item.workout_type}}</h2>
+        <p>{{formatDate(item.workout_timestamp)}}</p>
       </ion-item>
-      <a class="item item-body" href="#/app/workouts/{{item.id}}">
-        <img class="full-image" src="{{item.gmap}}">
+      <a class="item item-body" href="#/app/workouts/{{item.workout_id}}">
+        <!-- <img class="full-image" src="{{item.gmap}}"> -->
         <p>
-          {{item.name}}
+          Comment goes here... <!-- {{item.workout_type}} -->
         </p>
         <p>
           <b>Distance: </b>{{item.distance}} mi.<br/>
           <b>Duration: </b>{{formatDuration(item.duration)}}<br/>
-          <b>Pace: </b>{{formatPace(item.distance,item.duration)}}
+          <b>Pace: </b>{{formatPace(item.pace)}}
         </p>
       </a>
     </ion-list>
