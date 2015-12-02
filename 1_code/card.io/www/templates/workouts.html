@@ -1,6 +1,11 @@
 <ion-view view-title="Workout History">
   <ion-content>
 
+    <ion-refresher
+      pulling-text="Pull to refresh..."
+      on-refresh="doRefresh()">
+    </ion-refresher>
+
     <ion-list type="card" ng-show="!workoutList.length">
       <ion-item ng-show="!workoutList.length">
         <p ng-show="!workoutList.length">You have not entered any workout items.</p>

@@ -299,7 +299,6 @@ angular.module('starter.controllers', ['starter.services'])
     // Calories = METS x weight (kg) x time (hours)
     // 1 kg = 0.45359237 (pounds)
     // 1 hour = 60 (mins)
-    console.log('' + activityType + ' - ' + duration);
     var userWeightKg = parseFloat($scope.currentUser.weight) * 0.45359237;
     var durationHours = parseFloat(duration) / 60.0;
     var activityMET = 6.0; // default MET
@@ -452,6 +451,17 @@ angular.module('starter.controllers', ['starter.services'])
       $scope.workoutList = response.data;
     }
   });
+
+  $scope.doRefresh = function() {
+    WorkoutService.GetAll($scope.username).then(function (response){
+      if (response.success) {
+        $scope.workoutList = response.data;
+      }
+    }).finally(function() {
+       // Stop the ion-refresher from spinning
+       $scope.$broadcast('scroll.refreshComplete');
+     });
+  }
   
 
   $scope.formatDate = function(date) {
@@ -517,6 +527,17 @@ angular.module('starter.controllers', ['starter.services'])
       $scope.foods = response.data;
     }
   });
+
+  $scope.doRefresh = function() {
+    FoodService.GetFoodList().then(function (response){
+      if(response.success) {
+        $scope.foods = response.data;
+      }
+    }).finally(function() {
+       // Stop the ion-refresher from spinning
+       $scope.$broadcast('scroll.refreshComplete');
+     });
+  }
 
   // Get user's list of foods
   FoodService.GetAll($scope.username).then(function(response) {

@@ -23,6 +23,10 @@
     {
       "locator": "https://github.com/leecrossley/cordova-plugin-touchid.git",
       "id": "cordova-plugin-touchid"
+    },
+    {
+      "locator": "https://github.com/robertklein/cordova-ios-security.git",
+      "id": "sk.kcorp.cordova.ios-security"
     }
   ],
   "cordovaPlatforms": [

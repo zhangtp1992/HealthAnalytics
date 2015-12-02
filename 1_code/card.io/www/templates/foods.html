@@ -1,5 +1,10 @@
 <ion-view view-title="Food History">
   <ion-content>
+
+    <ion-refresher
+      pulling-text="Pull to refresh..."
+      on-refresh="doRefresh()">
+    </ion-refresher>
   
     <ion-list type="card" ng-show="!foodList.length">
       <ion-item ng-show="!foodList.length">
