@@ -88,7 +88,7 @@ angular.module('starter.controllers', ['starter.services'])
         if(response.success) { // if user service response == true set the user variable
           $scope.currentUser = response.data;
           if($scope.currentUser && $scope.currentUser.birth_date) {
-            $scope.currentUser.birth_date = new Date($scope.currentUser.birth_date);// theDate.year(), theDate.month(), theDate.date()
+            $scope.currentUser.birth_date =  moment($scope.currentUser.birth_date).toDate(); // convert date object
           }
         } else { // else service response == false clear the user variable
           $scope.currentUser = {};
@@ -188,7 +188,7 @@ angular.module('starter.controllers', ['starter.services'])
   $scope.doRegister = function() {
     console.log('Doing register', $scope.registerData);
     $scope.registerData.username = $scope.registerData.email;
-    $scope.registerData.birth_date = new Date($scope.registerData.birth_date);
+    $scope.registerData.birth_date = new Date($scope.registerData.birth_date); // convert date object
     UserService.Create($scope.registerData).then(function (response){
       if(response.success) {
         $scope.closeRegisterModal();
@@ -228,6 +228,8 @@ angular.module('starter.controllers', ['starter.services'])
   UserService.GetByUsername(AuthenticationService.CurrentUser().username).then(function (response){
     if (response.success) {
       $scope.currentUser = response.data;
+      $scope.currentUser.gender = $scope.currentUser.gender.toLowerCase(); // send gender to lowercase....
+      $scope.currentUser.birth_date = moment($scope.currentUser.birth_date).toDate(); // convert date object
     } 
     return $scope.currentUser;
   });

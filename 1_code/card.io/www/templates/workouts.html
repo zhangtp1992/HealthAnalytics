@@ -16,7 +16,7 @@
       <a class="item item-body" href="#/app/workouts/{{item.workout_id}}">
         <!-- <img class="full-image" src="{{item.gmap}}"> -->
         <p>
-          Comment goes here... <!-- {{item.workout_type}} -->
+           {{item.comments || 'Comment goes here...'}}
         </p>
         <p>
           <b>Distance: </b>{{item.distance}} mi.<br/>
