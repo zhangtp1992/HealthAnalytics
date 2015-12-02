@@ -47,6 +47,26 @@ angular.module('starter.controllers', ['starter.services'])
     { value: 'WI', text: 'Wisconsin' }, { value: 'WY', text: 'Wyoming' }
   ]
 
+  $scope.getWorkoutIcon = function(foodName) {
+    var foods = {
+      'walk': 'ion-android-walk',
+      'jog': 'ion-ribbon-a',
+      'bike': 'ion-android-bicycle'
+    };
+    var retIcon = foods[foodName.toLowerCase()];
+    return retIcon || 'ion-ribbon-a';
+  }
+
+  $scope.getFoodIcon = function(foodName) {
+    var foods = {
+      'cheese pizza': 'ion-pizza',
+      'coffee (milk and sugar)': 'ion-coffee',
+      'yellow cake with vanilla frosting': 'ion-fork'
+    };
+    var retIcon = foods[foodName.toLowerCase()];
+    return retIcon || 'ion-fork';
+  }
+
   $scope.isUserLogged = function(){
     return AuthenticationService.IsLoggedIn();
   }
@@ -203,8 +223,14 @@ angular.module('starter.controllers', ['starter.services'])
 
 })
 
-.controller('ProfileCtrl', function($scope, $rootScope, UserService) {
+.controller('ProfileCtrl', function($scope, $rootScope, AuthenticationService, UserService) {
   $scope.editing = false;
+  UserService.GetByUsername(AuthenticationService.CurrentUser().username).then(function (response){
+    if (response.success) {
+      $scope.currentUser = response.data;
+    } 
+    return $scope.currentUser;
+  });
 
   // Perform the login action when the user submits the login form
   $scope.toggleEdit = function() {
@@ -227,42 +253,194 @@ angular.module('starter.controllers', ['starter.services'])
 .controller('SettingsCtrl', function($scope, $stateParams) {
 })
 
-.controller('AddWorkoutCtrl', function($scope, $stateParams) {
+
+.controller('AddWorkoutCtrl', function($scope, $stateParams, $location, $ionicHistory, AuthenticationService, WorkoutService) {
+  
   $scope.workoutTypes = [
-    {text: 'Run', value: 'run'},
-    {text: 'Walk', value: 'Walk'},
-    {text: 'Bike', value: 'bike'},
+    {text: 'Run', value: 'run', met: 8.0},
+    {text: 'Walk', value: 'Walk', met: 6.0},
+    {text: 'Bike', value: 'bike', met: 7.5}
   ];
+
   var now = moment();
-  var name = 'Run on ' + (now.month()+1) + '/' + now.date() + '/' + now.year();
-  $scope.workoutData = {name: name, type: 'run', date: new Date(now.year(), now.month(), now.date()), distance: 0.0, duration: 0.0};
+  $scope.workoutData = {
+    comments: null, 
+    workout_type: 'run', 
+    workout_timestamp: now.toDate(), 
+    distance: 0.0, 
+    duration: 0.0,
+    calories: 0.0
+  };
+
+  $scope.$watchGroup( ['workoutData.workout_type', 'workoutData.duration'], function ( newValues, oldValues, scope ) {
+    $scope.workoutData.calories = $scope.calculateCalories(newValues[0], newValues[1]);
+  });
+
+  $scope.submitWorkout = function() {
+    $scope.workoutData.workout_timestamp = moment($scope.workoutData.workout_timestamp).utc().toDate(); // convert date to utc
+    WorkoutService.Create(AuthenticationService.CurrentUser().username, $scope.workoutData)
+    .then(function (response) {
+      if (response.success) {
+        $ionicHistory.nextViewOptions({disableBack: true});
+        $location.path('app/workouts');
+      } else {
+        // An alert dialog
+        $ionicPopup.alert({
+          title: 'Create Workout Failed.',
+          template: response.data
+        });
+      }
+    });
+  }
+
+  $scope.calculateCalories = function(activityType, duration){
+    // Calories = METS x weight (kg) x time (hours)
+    // 1 kg = 0.45359237 (pounds)
+    // 1 hour = 60 (mins)
+    console.log('' + activityType + ' - ' + duration);
+    var userWeightKg = parseFloat($scope.currentUser.weight) * 0.45359237;
+    var durationHours = parseFloat(duration) / 60.0;
+    var activityMET = 6.0; // default MET
+    for (var workout in $scope.workoutTypes) {
+      if ($scope.workoutTypes[workout].value === activityType) {
+        activityMET = $scope.workoutTypes[workout].met;
+        break;
+      }
+    }
+    return parseFloat(activityMET * userWeightKg * durationHours);
+  }
+
+  $scope.formatCalories = function(calories) {
+    if(calories) {
+      var calculatedCalories = parseFloat(calories);
+      var value = calculatedCalories.toFixed(2);
+      return value;
+    }
+  }
+
+  /*
+    Workout Format:
+    workout_type=[string(100)]
+    distance=[float(6,2)] miles
+    duration=[int] minutes
+    calories=[int]
+    workout_timestamp=[UTC formatted date]
+    authtoken=[string(32)]
+
+    Example:
+    {"workout_id":51,
+    "workout_type":"jog",
+    "distance":2,
+    "duration":65,
+    "calories":250,
+    "pace":1,
+    "workout_timestamp":"2015-11-05T13:12:43.511Z",
+    "email":"ntaylor@aps.rutgers.edu"},
+  */
+
 })
 
-.controller('AddFoodCtrl', function($scope, $stateParams) {
-  var now = moment();
-  $scope.foodData = {type: 'lunch', food: "coffee", serving: '0.5', date: new Date(now.year(), now.month(), now.date())};
 
-  $scope.foodTypes = [
-    {text: 'Pizza', value: 'pizza', calories: 215},
-    {text: 'Coffee', value: 'coffee', calories: 130},
-    {text: 'Cake', value: 'cake', calories: 600}
-  ];
+.controller('AddFoodCtrl', function($scope, $stateParams, $location, $ionicHistory, AuthenticationService, FoodService) {
+  var now = moment();
+  $scope.foodData = {
+    food: 1, // food id
+    meal: 'breakfast', 
+    serving: '0.5', 
+    food_timestamp: now.toDate(),
+    comments: null
+  };
+  $scope.selected = {};
+
+  // Get the list of foods from the server for display purposes.
+  FoodService.GetFoodList().then(function (response){
+    if(response.success) {
+      $scope.foodTypes = response.data;
+      $scope.selected.selectedFoodType = $scope.foodTypes[0]; // Default to first item
+    }
+  });
 
   $scope.mealTypes = [
-    {text: 'Breakfast', value: 'breakfast'},
-    {text: 'Lunch', value: 'lunch'},
-    {text: 'Dinner', value: 'dinner'},
-    {text: 'Snack', value: 'snack'},
-    {text: 'Other', value: 'other'}
+    {text: 'Breakfast', value: 'breakfast', id: 0},
+    {text: 'Lunch', value: 'lunch', id: 1},
+    {text: 'Dinner', value: 'dinner', id: 2},
+    {text: 'Snack', value: 'snack', id: 3},
+    {text: 'Other', value: 'other', id: 4}
   ];
 
+
   $scope.servingTypes = [
-    {text: 'A Lot', value: '3'},
-    {text: 'Moderate', value: '2'},
-    {text: 'Normal', value: '1'},
-    {text: 'Quick Snack', value: '0.5'}
+    {text: 'Quick Snack', value: '0.5', id: 0},
+    {text: 'Normal', value: '1', id: 1},
+    {text: 'Moderate', value: '2', id: 2},
+    {text: 'A Lot', value: '3', id: 3}
   ];
+
+  $scope.selected.selectedMealType = $scope.mealTypes[0]; // Default to 'Breakfast'
+  $scope.selected.selectedServingType = $scope.servingTypes[1]; // Default to 'Normal'
+
+
+  $scope.submitFood = function() {    
+    // overrite some of the foodData values
+    $scope.foodData.food = $scope.selected.selectedFoodType.food_id; // food id
+    $scope.foodData.meal = $scope.selected.selectedMealType.value; // meal value
+    $scope.foodData.serving = $scope.selected.selectedServingType.value; // serving value
+    $scope.foodData.food_timestamp = moment($scope.foodData.food_timestamp).utc().toDate(); // convert date to utc
+
+    // Send to server
+    FoodService.Create(AuthenticationService.CurrentUser().username, $scope.foodData)
+    .then(function (response) {
+      if (response.success) {
+        $ionicHistory.nextViewOptions({disableBack: true});
+        $location.path('app/foods');
+      } else {
+        // An alert dialog
+        $ionicPopup.alert({
+          title: 'Create Food Failed.',
+          template: response.data
+        });
+      }
+    });
+  
+    
+  }
+
+  /*
+    Food format:
+    food=[int]
+    serving=[float(4,2)]
+    meal=[string(25)]
+    food_timestampe=[UTC formatted date]
+    comments=[string(255)] optional
+
+    Example Food Type:
+    {
+      "food_id":1,
+      "food_name":"Cheese Pizza",
+      "calories":272,
+      "serving_size":"1 slice",
+      "serving_size_normalized":103
+    },
+
+    Example Food:
+    {
+      "userfood_id":"2",
+      "food":"1",
+      "serving":"2.50",
+      "meal":"breakfast",
+      "food_timestamp":"2015-11-23T14:34:43.954Z",
+      "email":"ntaylor@aps.rutgers.edu",
+      "food_name":"Cheese Pizza",
+      "calories_per_serving":"272",
+      "serving_size":"1 slice",
+      "serving_size_normalized":103,
+      "total_calories":680,
+      "total_mass":257
+    }
+  */
+
 })
+
 
 .controller('WorkoutsCtrl', function($scope, $stateParams, AuthenticationService, WorkoutService) {
   $scope.username = AuthenticationService.CurrentUser().username;
@@ -282,9 +460,10 @@ angular.module('starter.controllers', ['starter.services'])
 
   $scope.formatDuration = function(minutes){
     if(minutes){
-      var hours = parseInt( minutes / 60 );
-      var minutes = parseInt( minutes % 60 );
-      var seconds = parseInt( (minutes % 60.0) / 60 );
+      var duration = moment.duration(minutes, 'minutes');
+      var hours = duration.hours();
+      var minutes = duration.minutes();
+      var seconds = duration.seconds();
       var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
       return result;
     }
@@ -292,22 +471,23 @@ angular.module('starter.controllers', ['starter.services'])
 
   $scope.formatPace = function(pace){
     if(pace && pace > 0) {
-      var minutes = parseInt( pace / 60 );
-      var seconds = parseInt(pace % 60);
+      var duration = moment.duration(pace, 'minutes');
+      var minutes = duration.minutes();
+      var seconds = duration.seconds();
       var result = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds) + " min/mi.";
       return result;
     }
   }
 
-  $scope.getWorkoutIcon = function(foodName) {
-    var foods = {
-      'walk': 'ion-android-walk',
-      'jog': 'ion-ribbon-a',
-      'bike': 'ion-android-bicycle'
-    };
-    var retIcon = foods[foodName.toLowerCase()];
-    return retIcon || 'ion-ribbon-a';
+  $scope.formatCalories = function(calories) {
+    if(calories) {
+      var calculatedCalories = parseFloat(calories);
+      var value = calculatedCalories.toFixed(2);
+      return value;
+    }
   }
+
+  
 
   /*
 
@@ -358,15 +538,7 @@ angular.module('starter.controllers', ['starter.services'])
     }
   }
 
-  $scope.getFoodIcon = function(foodName) {
-    var foods = {
-      'cheese pizza': 'ion-pizza',
-      'coffee (milk and sugar)': 'ion-coffee',
-      'yellow cake with vanilla frosting': 'ion-fork'
-    };
-    var retIcon = foods[foodName.toLowerCase()];
-    return retIcon || 'ion-fork';
-  }
+  
 
 
   /*

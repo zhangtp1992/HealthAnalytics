@@ -7,7 +7,7 @@
       </ion-item>
     </ion-list>
 
-    <ion-list type="card" ng-repeat="item in workoutList">
+    <ion-list type="card" ng-repeat="item in workoutList | orderBy:'-workout_timestamp'">
       <ion-item class="item-icon-left">
         <i class="icon {{getWorkoutIcon(item.workout_type)}}"></i>
         <h2 class="first-letter">{{item.workout_type}}</h2>
@@ -21,7 +21,8 @@
         <p>
           <b>Distance: </b>{{item.distance}} mi.<br/>
           <b>Duration: </b>{{formatDuration(item.duration)}}<br/>
-          <b>Pace: </b>{{formatPace(item.pace)}}
+          <b>Pace: </b>{{formatPace(item.pace)}}<br/>
+          <b>Calories: </b>{{formatCalories(item.calories)}}
         </p>
       </a>
     </ion-list>

@@ -6,18 +6,18 @@
     <form  ng-submit="submitWorkout()">
       <div class="list list-inset">
         <label class="item item-input">
-          <span class="input-label">Name</span>
-          <input type="text" placeholder="Ran today" ng-model="workoutData.name">
+          <span class="input-label">Comments <span class="assertive">*</span></span>
+          <input type="text" placeholder="Awesome run today." ng-model="workoutData.comments" required="required">
         </label>
         <label class="item item-input">
-          <span class="input-label">Date</span>
-          <input type="date" ng-model="workoutData.date">
+          <span class="input-label">When <span class="assertive">*</span></span>
+          <input type="datetime-local" ng-model="workoutData.workout_timestamp" required="required">
         </label>
         <label class="item item-input item-select">
           <div class="input-label">
-            Type
+            Type <span class="assertive">*</span>
           </div>
-          <select ng-model="workoutData.type">
+          <select ng-model="workoutData.workout_type" required="required">
             <option ng-repeat="workoutType in workoutTypes" ng-selected="{{workoutType.value == workoutData.type}}" value="{{workoutType.value}}">{{workoutType.text}}</option>
           </select>
         </label>
@@ -25,16 +25,21 @@
 
       <div class="list list-inset">
         <div class="item item-divider">
-          Basic Information
+          Workout Information
         </div>
         <label class="item item-input">
-          <span class="input-label">Distance (mi)</span>
-          <input type="number" placeholder="(mi)" ng-model="workoutData.distance">
+          <span class="input-label">Distance (mi) <span class="assertive">*</span></span>
+          <input type="number" placeholder="(mi)" ng-model="workoutData.distance" required="required">
         </label>
         <label class="item item-input">
-          <span class="input-label">Duration (secs)</span>
-          <input type="number" placeholder="(secs)" ng-model="workoutData.duration">
+          <span class="input-label">Duration (min) <span class="assertive">*</span></span>
+          <input type="number" placeholder="(min)" ng-model="workoutData.duration" required="required">
         </label>
+        <label class="item item-input">
+          <span class="input-label">Calories</span>
+          <input type="text" placeholder="0" value="{{formatCalories(workoutData.calories)}}" readonly="readonly">
+        </label>
+
       </div>
     </form>
   </ion-content>

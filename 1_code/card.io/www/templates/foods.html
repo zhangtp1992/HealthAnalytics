@@ -7,7 +7,7 @@
       </ion-item>
     </ion-list>
 
-    <ion-list ng-repeat="item in foodList">
+    <ion-list ng-repeat="item in foodList | orderBy:'-food_timestamp'">
       <ion-item class="item-icon-left">
         <i class="icon {{getFoodIcon(item.food_name)}}"></i>
         <h2 class="first-letter">{{item.meal}} - <span style="font-size: smaller !important;">{{formatDate(item.food_timestamp)}}</span></h2>
