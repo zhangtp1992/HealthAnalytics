@@ -31,6 +31,9 @@
 				<a href="#loginUser">loginUser</a><br>
 				<a href="#logoutUser">logoutUser</a>
 			</td>
+			<td>
+				<a href="#updateUser">updateUser</a><br>
+			</td>
 		</tr>
 	</table>
 	<a name="addFood" />
@@ -133,7 +136,7 @@
 		<tr><td colspan="2" class="functionName">addWorkout</td></tr>
 		<tr>
 			<td class="b">URL</td>
-			<td>/addWorkout/:email?authtoken=:authotken&workout_type=:workout_type&distance=:distance&duration=:duration&calories=:claories&workout_timestamp=:workout_timestamp</td>
+			<td>/addWorkout/:email?authtoken=:authotken&workout_type=:workout_type&distance=:distance&duration=:duration&calories=:calories&workout_timestamp=:workout_timestamp&comments=:comments</td>
 		</tr>
 		<tr>
 			<td class="b">Method</td>
@@ -147,6 +150,7 @@
 				duration=[int] <i>minutes</i><br>
 				calories=[int]<br>
 				workout_timestamp=[UTC formatted date]<br>
+				comments=[string(255)] <i>optional</i><br>
 				authtoken=[string(32)]
 			</td>
 		</tr>
@@ -500,4 +504,69 @@
 			</td>
 		</tr>
 	</table>
+
+	<a name="updateUser" />
+	<table>
+		<tr><td colspan="2" class="functionName">updateUser</td></tr>
+		<tr>
+			<td class="b">URL</td>
+			<td>/updateUser/:email?fname=:fname&lname=:lname&mi=:mi&weight=:weight&height=:height&birth_date=:birth_date&gender=:gender&waist_size=:waist_size&address1=:address1&address2=:address2&city=:city&state=:state&zip=:zip</td>
+		</tr>
+		<tr>
+			<td class="b">Method</td>
+			<td>GET or POST</td>
+		</tr>
+		<tr>
+			<td class="b">URL Params</td>
+			<td>
+				address1=[string(255)]<br>
+				address2=[string(255)] <i>optional</i><br>
+				birth_date=[UTC formatted date]<br>
+				city=[string(75)]<br>
+				fname=[string(50)]<br>
+				gender=[string(1)]<br>
+				height=[int] <i>inches</i><br>
+				lname=[string(50)]<br>
+				mi=[string(1)]<br>
+				state=[string(2)]<br>
+				waist_size=[int] <i>inches</i><br>
+				weight=[int] <i>pounds</i><br>
+				zip=[string(10)]
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Success</td>
+			<td>Code:200<br>Content: {"results":"User successfully updated"}</td>
+		</tr>
+		<tr>
+			<td class="b">Failure</td>
+			<td>Code 400: You must provide the First Name<br>
+				Code 400: You must provide the Last Name<br>
+				Code 400: You must provide the E-Mail Address<br>
+				Code 400: You must provide the Password<br>
+				Code 400: You must provide the Middle Name Initial<br>
+				Code 400: You must provide the Weight<br>
+				Code 400: You must provide the Height<br>
+				Code 400: You must provide the Birth Date<br>
+				Code 400: You must provide the Gender<br>
+				Code 400: You must provide the Waist Size<br>
+				Code 400: You must provide Address Line #1<br>
+				Code 400: You must provide the City<br>
+				Code 400: You must provide the State<br>
+				Code 400: You must provide the Zip Code<br>
+				Code 400: Invalid Height<br>
+				Code 400: Invalid Weight<br>
+				Code 400: Invalid Waist Line<br>
+				Code 500: Unable to update user<br>
+				Code 500: You cannot update this user
+			</td>
+		</tr>
+		<tr>
+			<td class="b">Notes</b>
+			<td>
+				Password and Email cannot be changed via this method. You can only update your own profile
+			</td>
+		</tr>
+	</table>
+
 </html>

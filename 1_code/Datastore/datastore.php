@@ -57,7 +57,7 @@ class datastore
 		$flds_int=[
 			'workout'=>['workout_id','calories','duration'],
 			'user'=>['waist_size','height','weight'],
-			'food'=>['food_id','calories','serving_size_normalized']
+			'food'=>['userfood_id','food','calories','serving_size_normalized']
 		];
 		foreach($flds_int[$table] as $key=>$val){
 			if(isset($record[$val])){$record[$val]=(int)$record[$val];}
@@ -134,7 +134,7 @@ class datastore
 		}
 	}
 
-	function addWorkout($authtoken,$workout_type,$distance,$duration,$workout_timestamp,$calories){
+	function addWorkout($authtoken,$workout_type,$distance,$duration,$workout_timestamp,$calories,$comments){
 		$this->__authenticateUser($authtoken);
 		if(empty($workout_type)){throw new DatastoreException('You must provide the Workout Type',5);}
 		if(empty($distance)){throw new DatastoreException('You must provide the Workout Distance',5);}
@@ -145,8 +145,8 @@ class datastore
 		if(!is_numeric($duration)){throw new DatastoreException('Invalid Workout Duration',5);}
 		if(!is_numeric($calories)){throw new DatastoreException('Invalid Workout Calories',5);}
 		try{
-			$pstmt=$this->db->prepare('INSERT INTO workout (workout_type,distance,duration,calories,workout_timestamp,person) VALUES (?,?,?,?,?,?)');
-			$pstmt->execute([$workout_type,$distance,$duration,$calories,$workout_timestamp,$this->authenticatedUser['pkey']]);
+			$pstmt=$this->db->prepare('INSERT INTO workout (workout_type,distance,duration,calories,workout_timestamp,person,comments) VALUES (?,?,?,?,?,?,?)');
+			$pstmt->execute([$workout_type,$distance,$duration,$calories,$workout_timestamp,$this->authenticatedUser['pkey'],$comments]);
 			return(json_encode(['workout_id'=>$this->db->lastInsertId()]));
 		}
 		catch(PDOException $e){throw new DatastoreException('Unable to save workout',1);}
@@ -344,4 +344,34 @@ class datastore
 		catch(PDOException $e){throw new DatastoreException('Unable to logout user',1);}
 	}
 
+	public function updateUser($fname,$lname,$email,$mi,$weight,$height,$birth_date,$gender,$waist_size,$address1,$address2,$city,$state,$zip,$authtoken){
+		if(empty($fname)){throw new DatastoreException('You must provide the First Name',5);}
+		if(empty($lname)){throw new DatastoreException('You must provide the Last Name',5);}
+		if(empty($email)){throw new DatastoreException('You must provide the E-Mail Address',5);}
+		if(empty($mi)){throw new DatastoreException('You must provide the Middle Name Initial',5);}
+		if(empty($weight)){throw new DatastoreException('You must provide the Weight',5);}
+		if(empty($height)){throw new DatastoreException('You must provide the Height',5);}
+		if(empty($birth_date)){throw new DatastoreException('You must provide the Birth Date',5);}
+		if(empty($gender)){throw new DatastoreException('You must provide the Gender',5);}
+		if(empty($waist_size)){throw new DatastoreException('You must provide the Waist Size',5);}
+		if(empty($address1)){throw new DatastoreException('You must provide Address Line #1',5);}
+		if(empty($city)){throw new DatastoreException('You must provide the City',5);}
+		if(empty($state)){throw new DatastoreException('You must provide the State',5);}
+		if(empty($zip)){throw new DatastoreException('You must provide the Zip Code',5);}
+		if(!is_numeric($height)){throw new DatastoreException('Invalid Height',5);}
+		if(!is_numeric($weight)){throw new DatastoreException('Invalid Weight',5);}
+		if(!is_numeric($waist_size)){throw new DatastoreException('Invalid Waist Size',5);}
+
+		try{
+			$this->__authenticateUser($authtoken);
+			if($email!=$this->authenticatedUser['email']){throw new DatastoreException('You cannot update this user',2);}
+			$pstmt=$this->db->prepare('UPDATE people SET fname=?,lname=?,mi=?,weight=?,height=?,birth_date=?,gender=?,waist_size=?,address1=?,address2=?,city=?,state=?,zip=? WHERE email=?');
+			$pstmt->execute([$fname,$lname,$mi,$weight,$height,$birth_date,strtoupper($gender),$waist_size,$address1,$address2,$city,$state,$zip,$email]);
+			return('{"results":"User successfully updated"}');
+		}
+		catch(PDOException $e){
+			$this->__logError($e->getMessage(),__FUNCTION__);
+			throw new DatastoreException('Unable to create user',2);
+		}
+	}
 }
