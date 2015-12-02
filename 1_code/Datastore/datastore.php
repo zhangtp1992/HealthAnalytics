@@ -235,6 +235,13 @@ class datastore
 		catch(PDOException $e){throw new DatastoreException('Unable to fetch user food',2);}
 	}
 
+	function getHealthStats($authtoken,$age,$height,$weight,$waist_size,$gender,$ethnicity,$state){
+		include('health_stats.php');
+		$person=['State'=>$state,'Gender'=>strtoupper($gender),'Waist'=>$waist,'Height'=>$height,'Age_years'=>$age,'Ethnicity'=>$ethnicity];
+		$model=new model($person);
+		return json_encode($model->getStats());
+	}
+
 	function getUserAll($authtoken){
 		$this->__authenticateUser($authtoken);
 		if($this->authenticatedUser['role']!='admin'){throw new DatastoreException('You do not have the rights to perform this action',3);}

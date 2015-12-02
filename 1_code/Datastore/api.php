@@ -84,6 +84,9 @@ class api
 			case 'getFoodUser':
 				$retval=$this->datastore->getFoodUser($this->requestVars['authtoken'],$this->furl_id);
 			break;
+			case 'getHealthStats':
+				$retval=$this->datastore->getHealthStats($this->requestVars['authtoken'],$this->requestVars['age'],$this->requestVars['height'],$this->requestVars['weight'],$this->requestVars['waist_size'],$this->requestVars['gender'],$this->requestVars['ethnicity'],$this->requestVars['state']);
+			break;
 			case 'getUser':
 				$retval=$this->datastore->getUser($this->furl_id,$this->requestVars['authtoken']);
 			break;
