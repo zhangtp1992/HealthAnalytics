@@ -1,13 +1,25 @@
 <ion-view view-title="Food History">
   <ion-content>
-    <ion-list ng-repeat="item in foodList">
+
+    <ion-refresher
+      pulling-text="Pull to refresh..."
+      on-refresh="doRefresh()">
+    </ion-refresher>
+  
+    <ion-list type="card" ng-show="!foodList.length">
+      <ion-item ng-show="!foodList.length">
+        <p ng-show="!foodList.length">You have not entered any food items.</p>
+      </ion-item>
+    </ion-list>
+
+    <ion-list ng-repeat="item in foodList | orderBy:'-food_timestamp'">
       <ion-item class="item-icon-left">
-        <i class="icon {{item.icon}}"></i>
-        <h2 class="first-letter">{{item.type}} - <span style="font-size: smaller !important;">{{formatDate(item.date)}}</span></h2>
+        <i class="icon {{getFoodIcon(item.food_name)}}"></i>
+        <h2 class="first-letter">{{item.meal}} - <span style="font-size: smaller !important;">{{formatDate(item.food_timestamp)}}</span></h2>
         <p>
-          <b>Meal: </b>{{item.food}}<br/>
-          <b>Serving: </b>{{item.serving_label}}<br/>
-          <b>Calories: </b>{{formatCalories(item.calories,item.serving)}}
+          <b>Meal: </b>{{item.food_name}}<br/>
+          <b>Serving: </b>{{item.serving}}<br/>
+          <b>Calories: </b>{{formatCalories(item.total_calories)}}
         </p>
       </ion-item>
     </ion-list>

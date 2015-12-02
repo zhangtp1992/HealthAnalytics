@@ -11,39 +11,39 @@
       <div class="list list-inset">
         <label class="item item-input">
           <span class="input-label">First Name <span class="assertive">*</span></span>
-          <input type="text" placeholder="John" ng-model="registerData.fname" required>
+          <input type="text" placeholder="John" ng-model="registerData.fname" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Middle Initial <span class="assertive">*</span></span>
-          <input type="text" placeholder="S" ng-model="registerData.mi" required>
+          <input type="text" placeholder="S" ng-model="registerData.mi" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Last Name <span class="assertive">*</span></span>
-          <input type="text" placeholder="Shepard" ng-model="registerData.lname" required>
+          <input type="text" placeholder="Shepard" ng-model="registerData.lname" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Email <span class="assertive">*</span></span>
-          <input type="email" placeholder="john.shepard@N7.com" ng-model="registerData.email" required>
+          <input type="email" placeholder="john.shepard@N7.com" ng-model="registerData.email" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Password <span class="assertive">*</span></span>
-          <input type="password" placeholder="Secret" ng-model="registerData.password" required>
+          <input type="password" placeholder="Secret" ng-model="registerData.password" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Birth Date <span class="assertive">*</span></span>
-          <input type="date" placeholder="2154-04-11" ng-model="registerData.birth_date" required>
+          <input type="date" placeholder="2154-04-11" ng-model="registerData.birth_date" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Height <span class="assertive">*</span></span>
-          <input type="number" placeholder="(inches)" ng-model="registerData.height" required>
+          <input type="number" placeholder="(inches)" ng-model="registerData.height" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Waist <span class="assertive">*</span></span>
-          <input type="number" placeholder="(inches)" ng-model="registerData.waist_size" required>
+          <input type="number" placeholder="(inches)" ng-model="registerData.waist_size" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Weight <span class="assertive">*</span></span>
-          <input type="number" placeholder="(lbs)" ng-model="registerData.weight" required>
+          <input type="number" placeholder="(lbs)" ng-model="registerData.weight" required="required">
         </label>
 
         <!--
@@ -68,7 +68,7 @@
         <div class="item item-divider">
           Gender <span class="assertive">*</span>
         </div>
-        <ion-radio-fix ng-repeat="item in genderList" ng-value="item.value" ng-model="registerData.gender" required>{{item.text}}</ion-radio-fix>
+        <ion-radio-fix ng-repeat="item in genderList" ng-value="item.value" ng-model="registerData.gender" required="required">{{item.text}}</ion-radio-fix>
       </div>
 
       <div class="list list-inset">
@@ -77,7 +77,7 @@
         </div>
         <label class="item item-input">
           <span class="input-label">Street <span class="assertive">*</span></span>
-          <input type="text" placeholder="1 Awesome Way" ng-model="registerData.address1" required>
+          <input type="text" placeholder="1 Awesome Way" ng-model="registerData.address1" required="required">
         </label>
         <label class="item item-input">
           <span class="input-label">Street 2</span>
@@ -85,7 +85,7 @@
         </label>
         <label class="item item-input">
           <span class="input-label">City <span class="assertive">*</span></span>
-          <input type="text" placeholder="New York" ng-model="registerData.city" required>
+          <input type="text" placeholder="New York" ng-model="registerData.city" required="required">
         </label>
         <label class="item item-input item-select">
           <div class="input-label">
@@ -98,7 +98,7 @@
         </label>
         <label class="item item-input">
           <span class="input-label">ZipCode <span class="assertive">*</span></span>
-          <input type="text" placeholder="0000-12345" ng-model="registerData.zip" required>
+          <input type="text" placeholder="0000-12345" ng-model="registerData.zip" required="required">
         </label>
       </div>
 

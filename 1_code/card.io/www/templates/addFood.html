@@ -5,38 +5,48 @@
   <ion-content>
     <form  ng-submit="submitFood()">
       <div class="list list-inset">
+        <label class="item item-input">
+          <span class="input-label">Comments <span class="assertive">*</span></span>
+          <input type="text" placeholder="Great, healthy breakfast." ng-model="foodData.comments" required="required">
+        </label>
         <label class="item item-input item-select">
           <div class="input-label">
-            Meal
+            Meal <span class="assertive">*</span>
           </div>
-          <select ng-model="foodData.type">
-            <option ng-repeat="mealType in mealTypes" ng-selected="{{mealType.value == foodData.type}}" value="{{mealType.value}}">{{mealType.text}}</option>
+          <select 
+            ng-model="selected.selectedMealType" 
+            ng-options="mealType.text for mealType in mealTypes track by mealType.id" 
+            required="required">
           </select>
         </label>
         <label class="item item-input">
-          <span class="input-label">Date</span>
-          <input type="date" ng-model="foodData.date">
+          <span class="input-label">Date <span class="assertive">*</span></span>
+          <input type="datetime-local" ng-model="foodData.food_timestamp" required="required">
         </label>
       </div>
 
       <div class="list list-inset">
         <div class="item item-divider">
-          Basic Information
+          Food Information
         </div>
         <label class="item item-input item-select">
           <div class="input-label">
-            Food
+            Food <span class="assertive">*</span>
           </div>
-          <select ng-model="foodData.food">
-            <option ng-repeat="foodType in foodTypes" ng-selected="{{foodType.value == foodData.food}}" value="{{foodType.value}}">{{foodType.text}}</option>
+          <select 
+            ng-model="selected.selectedFoodType" 
+            ng-options="foodType.food_name for foodType in foodTypes track by foodType.food_id" 
+            required="required">
           </select>
         </label>
         <label class="item item-input item-select">
           <div class="input-label">
-            Serving
+            Serving <span class="assertive">*</span>
           </div>
-          <select ng-model="foodData.serving">
-            <option ng-repeat="servingType in servingTypes" ng-selected="{{servingType.value == foodData.serving}}" value="{{servingType.value}}">{{servingType.text}}</option>
+          <select 
+            ng-model="selected.selectedServingType" 
+            ng-options="servingType.text for servingType in servingTypes track by servingType.id" 
+            required="required">
           </select>
         </label>
       </div>
